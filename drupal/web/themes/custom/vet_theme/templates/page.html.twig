@@ -42,6 +42,21 @@
       <div><h2>Visítanos</h2>{% for address in business.addresses %}<p>{{ address }}</p>{% endfor %}</div>
       <div><h2>Sigamos cerca</h2>{% if business.facebook_url %}<a href="{{ business.facebook_url }}" target="_blank" rel="noopener noreferrer">{{ business.facebook_name }} en Facebook ↗</a>{% else %}<p>Encuéntranos en Facebook como<br /><strong>{{ business.facebook_name }}</strong>.</p>{% endif %}<a href="{{ path('user.login') }}">Acceso a mi cuenta ↗</a></div>
     </div>
+    <div class="container payment-strip" role="region" aria-label="Medios de pago aceptados">
+      <h2>Medios de pago</h2>
+      <ul class="payment-strip-list">
+        {% for method in payment_methods %}
+          <li class="payment-chip{% if not method.available %} payment-chip-soon{% endif %}">
+            {% include '@vet_theme/templates/icon.html.twig' with {icon: method.icon} only %}
+            <span class="payment-chip-text">
+              <strong>{{ method.label }}</strong>
+              <small>{{ method.note }}</small>
+            </span>
+            {% if not method.available %}<span class="payment-chip-badge">Próximamente</span>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
     <div class="container footer-bottom"><span>© {{ vet_year }} {{ business.name }}.</span><span>Hecho para quienes son parte de tu familia.</span><a href="{{ path('system.admin') }}">Administración</a></div>
   </footer>
 </div>
