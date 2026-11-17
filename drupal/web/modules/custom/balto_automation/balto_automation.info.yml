@@ -1,0 +1,7 @@
+name: BALTO Automatización
+type: module
+description: Avisa a n8n cuando se realiza un pedido, sin afectar la compra si n8n no responde.
+core_version_requirement: ^11
+package: BALTO
+dependencies:
+  - commerce:commerce_order

@@ -1,0 +1,6 @@
+services:
+  balto_automation.order_notifier:
+    class: Drupal\balto_automation\EventSubscriber\OrderPlacedNotifier
+    arguments: ['@http_client', '@logger.factory']
+    tags:
+      - { name: event_subscriber }
