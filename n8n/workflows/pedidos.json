@@ -1,6 +1,6 @@
 {
   "id": "baltoPedidos",
-  "name": "BALTO · Aviso de pedidos por Telegram",
+  "name": "BALTO · Avisos por Telegram (pedidos y stock bajo)",
   "active": false,
   "settings": {
     "executionOrder": "v1",
@@ -73,6 +73,113 @@
           "name": "BALTO Telegram"
         }
       }
+    },
+    {
+      "id": "Cada día",
+      "name": "Cada día",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        560
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Leer productos",
+      "name": "Leer productos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        560
+      ],
+      "parameters": {
+        "url": "http://drupal/api/vet/products",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 8000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "page",
+                    "value": "={{ $pageCount }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ $response.body.data.length < 50 }}",
+              "limitPagesFetched": true,
+              "maxRequests": 20
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "baltoDrupalApi",
+          "name": "BALTO API interna"
+        }
+      }
+    },
+    {
+      "id": "Filtrar stock bajo",
+      "name": "Filtrar stock bajo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        560
+      ],
+      "parameters": {
+        "jsCode": "const threshold = __STOCK_THRESHOLD__;\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst rows = $input.all().flatMap(i => Array.isArray(i.json.data) ? i.json.data : []);\nconst low = rows.filter(p => Number.isFinite(p.stock) && p.stock <= threshold).sort((a, b) => a.stock - b.stock);\nif (!low.length) return [];\nconst lines = low.slice(0, 30).map(p => `• ${esc(p.name)} (${esc(p.sku)}): ${p.stock <= 0 ? '<b>agotado</b>' : p.stock + ' u.'}`).join('\\n');\nconst more = low.length > 30 ? `\\n… y ${low.length - 30} más` : '';\nreturn [{ json: { text: `📦 <b>Stock bajo</b> (${low.length} de ${rows.length} productos, umbral ${threshold})\\n\\n${lines}${more}` } }];"
+      }
+    },
+    {
+      "id": "Avisar stock bajo",
+      "name": "Avisar stock bajo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        780,
+        560
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "__TELEGRAM_CHAT_ID__",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "baltoTelegram",
+          "name": "BALTO Telegram"
+        }
+      }
     }
   ],
   "connections": {
@@ -92,6 +199,39 @@
         [
           {
             "node": "Avisar por Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cada día": {
+      "main": [
+        [
+          {
+            "node": "Leer productos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer productos": {
+      "main": [
+        [
+          {
+            "node": "Filtrar stock bajo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar stock bajo": {
+      "main": [
+        [
+          {
+            "node": "Avisar stock bajo",
             "type": "main",
             "index": 0
           }

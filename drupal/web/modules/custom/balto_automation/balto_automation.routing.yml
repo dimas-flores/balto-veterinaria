@@ -1,0 +1,9 @@
+balto_automation.api_orders:
+  path: '/api/balto/pedidos'
+  defaults:
+    _controller: '\Drupal\balto_automation\Controller\OrdersController::latest'
+  requirements:
+    _access: 'TRUE'
+  methods: [GET]
+  options:
+    no_cache: TRUE

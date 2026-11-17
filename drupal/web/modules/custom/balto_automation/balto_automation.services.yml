@@ -4,3 +4,9 @@ services:
     arguments: ['@http_client', '@logger.factory']
     tags:
       - { name: event_subscriber }
+
+  balto_automation.order_confirmation_mailer:
+    class: Drupal\balto_automation\EventSubscriber\OrderConfirmationMailer
+    arguments: ['@http_client', '@logger.factory']
+    tags:
+      - { name: event_subscriber }
