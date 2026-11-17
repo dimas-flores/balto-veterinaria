@@ -1,11 +1,12 @@
 global:
-  version: 2026.11.17.1
+  version: 2026.11.17.2
   css:
     theme:
       css/fonts.css: {}
       css/style.css: {}
       css/storefront.css: {}
       css/catalog-trial.css: {}
+      css/legibility.css: {}
   js:
     js/site.js: {}
     js/catalog.js: {}
