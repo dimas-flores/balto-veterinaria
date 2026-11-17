@@ -22,7 +22,9 @@ function vet_theme_preprocess_page(array &$variables): void {
     $variables['vet_real_logo'] = TRUE;
   }
   $variables['vet_year'] = date('Y');
-  $variables['payment_methods'] = _vet_theme_payment_methods();
+  $variables['payment_methods'] = _vet_theme_payment_methods($variables['business']['payment_methods'] ?? '');
+  // La disponibilidad de Culqi depende de la pasarela: se invalida al cambiarla.
+  $variables['#cache']['tags'][] = 'config:commerce_payment_gateway_list';
 }
 
 /**
@@ -32,7 +34,7 @@ function vet_theme_preprocess_page(array &$variables): void {
  * PagoEfectivo/Culqi como disponible salvo que la pasarela exista,
  * esté activa y sus credenciales del entorno configurado sean válidas.
  */
-function _vet_theme_payment_methods(): array {
+function _vet_theme_payment_methods(string $local_methods = ''): array {
   $methods = [
     [
       'icon' => 'clock',
@@ -43,7 +45,8 @@ function _vet_theme_payment_methods(): array {
     [
       'icon' => 'bag',
       'label' => 'Pago al recoger en tienda',
-      'note' => 'Efectivo, tarjeta o Yape directo en el local.',
+      // Se usan los medios confirmados por el propietario en Datos del negocio.
+      'note' => trim($local_methods) !== '' ? trim($local_methods) : 'Consulta los medios aceptados en el local.',
       'available' => TRUE,
     ],
     [
