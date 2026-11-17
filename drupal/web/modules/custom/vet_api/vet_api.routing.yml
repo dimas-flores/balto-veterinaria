@@ -71,3 +71,12 @@ vet_api.api_schedule:
   methods: [GET]
   options:
     no_cache: TRUE
+
+vet_api.cart_summary:
+  path: '/carrito/resumen'
+  defaults:
+    _controller: '\Drupal\vet_api\Controller\CartSummaryController::summary'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: TRUE

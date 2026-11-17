@@ -60,5 +60,24 @@
     <div class="container footer-bottom"><span>© {{ vet_year }} {{ business.name }}.</span><span>Hecho para quienes son parte de tu familia.</span><a href="{{ path('system.admin') }}">Administración</a></div>
   </footer>
 </div>
+{% if show_action_bar %}
+<nav class="mobile-action-bar" aria-label="Contacto rápido">
+  <a class="mobile-action mobile-action-whatsapp" href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'whatsapp'} only %}<span>WhatsApp</span></a>
+  <a class="mobile-action mobile-action-call" href="{{ business.phone_url }}">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'phone'} only %}<span>Llamar</span></a>
+</nav>
+{% endif %}
+<div class="cart-drawer" data-cart-drawer hidden>
+  <div class="cart-drawer-backdrop" data-cart-close></div>
+  <section class="cart-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title" tabindex="-1">
+    <header class="cart-drawer-header"><h2 id="cart-drawer-title">Tu carrito</h2><button type="button" class="cart-drawer-close" data-cart-close aria-label="Cerrar carrito">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'close'} only %}</button></header>
+    <p class="cart-drawer-status" role="status" aria-live="polite" data-cart-status></p>
+    <div class="cart-drawer-body" data-cart-body></div>
+    <footer class="cart-drawer-footer" data-cart-footer hidden>
+      <p class="cart-drawer-subtotal"><span>Subtotal</span><strong data-cart-subtotal></strong></p>
+      <a class="button cart-drawer-checkout" data-cart-checkout href="{{ path('commerce_cart.page') }}">Finalizar compra</a>
+      <a class="text-link" data-cart-page href="{{ path('commerce_cart.page') }}">Ver o editar el carrito</a>
+    </footer>
+  </section>
+</div>
 
 {% include '@vet_theme/templates/chat-widget.html.twig' %}

@@ -3,6 +3,16 @@ import puppeteer from 'npm:puppeteer-core@25.10.0';
 
 const root = new URL('../', import.meta.url).pathname;
 const base = Deno.env.get('BALTO_TEST_URL') || 'http://localhost:8080';
+// El formulario de producto usa el carrito lateral: se espera su respuesta y se cierra el panel.
+const addToCart = async (p) => {
+  await p.$eval('[data-cart-status]', (el) => { el.textContent = ''; });
+  await p.click('.product-cart-form input[type=submit]');
+  await p.waitForFunction(() => document.querySelector('.cart-drawer.is-open') && document.querySelector('[data-cart-status]').textContent.trim() !== '', { timeout: 20000 });
+  const status = await p.$eval('[data-cart-status]', (el) => el.textContent);
+  await p.keyboard.press('Escape');
+  await p.waitForFunction(() => document.querySelector('[data-cart-drawer]').hidden, { timeout: 5000 });
+  return status;
+};
 const env = Object.fromEntries((await Deno.readTextFile(root + '.env')).split('\n').filter(l => l && !l.startsWith('#')).map(l => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]));
 const profile = await Deno.makeTempDir({ prefix: 'balto-catalog-' });
 const browser = await puppeteer.launch({ executablePath: Deno.env.get('BALTO_BROWSER') || '/opt/brave-bin/brave', headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'], userDataDir: profile });
@@ -73,12 +83,12 @@ try {
   check(await page.$eval('.product-cart-form input[type=submit]', el => el.disabled), 'Producto agotado tiene compra deshabilitada');
   // Se quita el bloqueo HTML para demostrar que la protección está en servidor.
   await page.evaluate(() => { const form = document.querySelector('.product-cart-form form'); form.noValidate = true; form.querySelectorAll('[disabled]').forEach(el => { el.disabled = false; }); });
-  await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('.product-cart-form input[type=submit]')]);
+  await addToCart(page);
   await visit('/cart');
   check(await page.$$eval('input[name^="edit_quantity"]', els => els.length === 0), 'Un POST manipulado no agrega el producto agotado');
   await visit(detail);
   const setQuantity = async quantity => page.$eval('input[name="quantity[0][value]"]', (el, value) => { el.value = value; el.removeAttribute('max'); el.removeAttribute('min'); el.removeAttribute('step'); el.closest('form').noValidate = true; }, String(quantity));
-  const submitProduct = () => Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('.product-cart-form input[type=submit]')]);
+  const submitProduct = () => addToCart(page);
   await setQuantity(Number(listedStock) + 1);
   await submitProduct();
   check((await page.$eval('body', el => el.textContent)).includes('Solo hay ' + listedStock), 'El servidor rechaza agregar más unidades que el stock');

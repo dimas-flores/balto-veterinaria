@@ -1,5 +1,5 @@
 global:
-  version: 2026.11.17.2
+  version: 2026.11.17.3
   css:
     theme:
       css/fonts.css: {}
@@ -14,6 +14,7 @@ global:
     js/chat.js: {}
     js/quantity.js: {}
     js/cart-feedback.js: {}
+    js/cart-drawer.js: {}
   dependencies:
     - core/drupal
     - core/drupalSettings

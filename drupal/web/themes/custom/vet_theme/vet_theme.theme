@@ -22,6 +22,10 @@ function vet_theme_preprocess_page(array &$variables): void {
     $variables['vet_real_logo'] = TRUE;
   }
   $variables['vet_year'] = date('Y');
+  // Barra de contacto fija en móvil, salvo en carrito y checkout.
+  $route = (string) \Drupal::routeMatch()->getRouteName();
+  $variables['show_action_bar'] = !str_starts_with($route, 'commerce_checkout.') && $route !== 'commerce_cart.page';
+  $variables['#cache']['contexts'][] = 'route';
   $variables['cart_count'] = [
     '#lazy_builder' => ['\\Drupal\\vet_api\\Render\\CartCount::build', []],
     '#create_placeholder' => TRUE,
@@ -104,6 +108,10 @@ function vet_theme_preprocess_commerce_product(array &$variables): void {
   if ($variables['product_entity']->bundle() === 'vet_product') {
     $variables['balto_product'] = \Drupal::service('vet_api.catalog')->present($variables['product_entity']);
     $variables['business'] = \Drupal::service('vet_api.business')->getBusiness();
+    $related = \Drupal::service('vet_api.catalog')->related($variables['product_entity']);
+    $variables['related_products'] = $related['products'];
+    _vet_theme_attach_cart_forms($variables['related_products']);
+    $variables['#cache']['tags'] = array_merge($variables['#cache']['tags'] ?? [], $related['cache_tags']);
   }
 }
 
