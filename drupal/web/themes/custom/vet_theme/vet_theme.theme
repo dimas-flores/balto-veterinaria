@@ -62,13 +62,20 @@ function _vet_theme_payment_methods(): array {
 
   if (\Drupal::hasService('balto_payments.orders') && \Drupal::hasService('entity_type.manager')) {
     try {
-      $gateway = \Drupal::entityTypeManager()
-        ->getStorage('commerce_payment_gateway')
-        ->load('balto_culqi_orders');
-      if ($gateway && $gateway->status()) {
-        \Drupal::service('balto_payments.orders')->credentials($gateway->getPlugin()->getMode());
-        $methods[3]['available'] = TRUE;
-        $methods[3]['note'] = 'Banca móvil, agentes o internet banking mediante código CIP — vía Culqi.';
+      // Se busca por ID de plugin, no por ID de configuración: el gateway
+      // puede llamarse distinto según cómo se haya creado (p. ej.
+      // "culqi_automatico" en scripts/prepare-automatic-payments.php).
+      $gateways = \Drupal::entityTypeManager()->getStorage('commerce_payment_gateway')->loadMultiple();
+      foreach ($gateways as $gateway) {
+        if ($gateway->getPluginId() !== 'balto_culqi_orders') {
+          continue;
+        }
+        if ($gateway->status()) {
+          \Drupal::service('balto_payments.orders')->credentials($gateway->getPlugin()->getMode());
+          $methods[3]['available'] = TRUE;
+          $methods[3]['note'] = 'Banca móvil, agentes o internet banking mediante código CIP — vía Culqi.';
+        }
+        break;
       }
     }
     catch (\Throwable) {
