@@ -41,6 +41,8 @@ async function fillCheckout(p, name) {
   await p.$eval('[name="vet_customer[phone]"]', el => { el.value = '900000001'; });
   await p.$eval('[name="contact_information[email]"]', el => { el.value = 'demo-fase4@example.invalid'; });
   await p.$eval('input[name="payment_information[payment_method]"][value*="pago_simulado"]', el => el.click());
+  // Elegir el medio de pago reconstruye el panel por AJAX; se espera antes de enviar.
+  await p.waitForNetworkIdle({ idleTime: 500 });
   await submit(p, '#edit-actions-next');
 }
 try {
