@@ -15,9 +15,27 @@ if (!geminiEnabled) workflow.nodes.find(n => n.name === 'Usar Gemini').parameter
 for (const name of ['Interpretar con Gemini', 'Crear respuesta Gemini']) workflow.nodes.find(n => n.name === name).parameters.url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 const serialized = JSON.stringify(workflow);
 fs.writeFileSync('/tmp/balto-chatbot.json', serialized, { mode: 0o600 });
-fs.writeFileSync('/tmp/balto-workflow.sha256', crypto.createHash('sha256').update(serialized).digest('hex'));
+const orderSecret = (process.env.BALTO_N8N_SECRET || '').trim();
+const telegramToken = (process.env.TELEGRAM_BOT_TOKEN || '').trim();
+const telegramChat = (process.env.TELEGRAM_CHAT_ID || '').trim();
+if (telegramChat && !/^-?\d+$/.test(telegramChat)) throw new Error('TELEGRAM_CHAT_ID inválido');
+const stockThreshold = Number.parseInt(process.env.STOCK_ALERT_THRESHOLD || '5', 10);
+if (!Number.isInteger(stockThreshold) || stockThreshold < 0 || stockThreshold > 100000) throw new Error('STOCK_ALERT_THRESHOLD inválido');
+const ordersEnabled = orderSecret.length >= 32 && !!telegramToken && !!telegramChat;
+const fill = f => fs.readFileSync(f, 'utf8').replaceAll('__TELEGRAM_CHAT_ID__', telegramChat || '0').replaceAll('__STOCK_THRESHOLD__', String(stockThreshold));
+const orders = fill('/workflows/pedidos.json');
+const bot = fill('/workflows/bot.json');
+// El Telegram Trigger solo funciona con una URL pública HTTPS.
+const botEnabled = ordersEnabled && /^https:\/\//.test(process.env.WEBHOOK_URL || '');
+fs.writeFileSync('/tmp/balto-pedidos.json', orders, { mode: 0o600 });
+fs.writeFileSync('/tmp/balto-bot.json', bot, { mode: 0o600 });
+fs.writeFileSync('/tmp/balto-orders-enabled', ordersEnabled ? '1' : '0', { mode: 0o600 });
+fs.writeFileSync('/tmp/balto-bot-enabled', botEnabled ? '1' : '0', { mode: 0o600 });
+fs.writeFileSync('/tmp/balto-workflow.sha256', crypto.createHash('sha256').update(serialized + orders + bot + ordersEnabled + botEnabled + (process.env.WEBHOOK_URL || '')).digest('hex'));
 const key = process.env.VET_API_KEY;
 if (!key || key.length < 32) throw new Error('Falta configurar VET_API_KEY.');
 const credentials = [{ id: 'baltoDrupalApi', name: 'BALTO API interna', type: 'httpHeaderAuth', data: { name: 'X-API-KEY', value: key } }];
 credentials.push({id: 'baltoGeminiApi', name: 'BALTO Gemini', type: 'httpHeaderAuth', data: {name: 'x-goog-api-key', value: geminiEnabled ? geminiKey : 'disabled'}});
+credentials.push({ id: 'baltoPedidoSecret', name: 'BALTO secreto de pedidos', type: 'httpHeaderAuth', data: { name: 'X-Balto-Secret', value: ordersEnabled ? orderSecret : crypto.randomBytes(32).toString('hex') } });
+credentials.push({ id: 'baltoTelegram', name: 'BALTO Telegram', type: 'telegramApi', data: { accessToken: telegramToken || 'disabled', baseUrl: 'https://api.telegram.org' } });
 fs.writeFileSync('/tmp/balto-credentials.json', JSON.stringify(credentials), {mode: 0o600});

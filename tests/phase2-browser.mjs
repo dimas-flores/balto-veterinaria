@@ -61,10 +61,13 @@ try {
     }));
     check(response.status() === 200, `Portada HTTP 200 a ${width}px`);
     check(state.overflow <= 1, `Sin desbordamiento horizontal a ${width}px`);
-    check(state.h1 === 1 && state.services === 7 && state.icons === 7, `Un título principal y siete servicios con ícono a ${width}px`);
-    check(state.addresses === 2 && state.placeholder?.includes('ejemplo'), `Dos sedes y horario de ejemplo visible a ${width}px`);
+    // Los servicios salen de Drupal; el propietario puede añadir o quitar sin romper la prueba.
+    check(state.h1 === 1 && state.services >= 7 && state.icons === state.services, `Un título principal y servicios con ícono a ${width}px`);
+    // La etiqueta de ejemplo solo aparece mientras el horario no esté confirmado.
+    check(state.addresses === 2 && (state.placeholder === undefined || state.placeholder.includes('ejemplo')), `Dos sedes y horario coherente a ${width}px`);
     check(state.brokenImages === 0, `Imágenes locales cargadas a ${width}px`);
-    check(state.map?.startsWith('https://maps.google.com/maps?q=') && decodeURIComponent(state.map).includes('220'), `Mapa de sede central a ${width}px`);
+    // El mapa usa la ficha de Google Maps (cid) o, sin ella, la dirección de la sede central.
+    check(/^https:\/\/maps\.google\.com\/maps\?(cid=\d+|q=.*220)/.test(decodeURIComponent(state.map || '')), `Mapa de sede central a ${width}px`);
     if (width === 1440) {
       await page.screenshot({ path: out + '/fase-2-escritorio.png', fullPage: true });
       await page.screenshot({ path: out + '/fase-2-portada.png' });
@@ -82,9 +85,9 @@ try {
   const appointment = await page.$eval('.hero-actions .button', (el) => el.href);
   check(appointment.startsWith('https://wa.me/51986866036?text=') && decodeURIComponent(appointment).includes('separar una cita'), 'WhatsApp real con mensaje precargado');
   check(await page.$$eval('a[href^="mailto:"]', (links) => links.length === 0), 'No se publica un correo inventado');
-  const serviceLink = await page.$eval('.service-card', (el) => el.href);
+  const [serviceLink, serviceTitle] = await page.$eval('.service-card', (el) => [el.href, el.querySelector('h3').textContent.trim()]);
   const serviceResponse = await page.goto(serviceLink, { waitUntil: 'networkidle0' });
-  check(serviceResponse.status() === 200 && (await page.$eval('main', (el) => el.textContent)).includes('Medicina veterinaria'), 'Detalle de servicio publicado accesible');
+  check(serviceResponse.status() === 200 && (await page.$eval('main', (el) => el.textContent)).includes(serviceTitle), 'Detalle de servicio publicado accesible');
   for (const path of ['/tienda', '/cart', '/user/login']) {
     const response = await page.goto(base + path, { waitUntil: 'networkidle0' });
     check(response.status() === 200, `${path} accesible`);

@@ -1,16 +1,20 @@
 global:
-  version: 2026.11.14.2
+  version: 2026.11.17.3
   css:
     theme:
       css/fonts.css: {}
       css/style.css: {}
       css/storefront.css: {}
       css/catalog-trial.css: {}
+      css/legibility.css: {}
   js:
     js/site.js: {}
     js/catalog.js: {}
     js/carousel.js: {}
     js/chat.js: {}
+    js/quantity.js: {}
+    js/cart-feedback.js: {}
+    js/cart-drawer.js: {}
   dependencies:
     - core/drupal
     - core/drupalSettings

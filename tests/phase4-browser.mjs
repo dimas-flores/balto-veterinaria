@@ -3,6 +3,16 @@ import puppeteer from 'npm:puppeteer-core@25.10.0';
 
 const root = new URL('../', import.meta.url).pathname;
 const base = Deno.env.get('BALTO_TEST_URL') || 'http://localhost:8080';
+// El formulario de producto usa el carrito lateral: se espera su respuesta y se cierra el panel.
+const addToCart = async (p) => {
+  await p.$eval('[data-cart-status]', (el) => { el.textContent = ''; });
+  await p.click('.product-cart-form input[type=submit]');
+  await p.waitForFunction(() => document.querySelector('.cart-drawer.is-open') && document.querySelector('[data-cart-status]').textContent.trim() !== '', { timeout: 20000 });
+  const status = await p.$eval('[data-cart-status]', (el) => el.textContent);
+  await p.keyboard.press('Escape');
+  await p.waitForFunction(() => document.querySelector('[data-cart-drawer]').hidden, { timeout: 5000 });
+  return status;
+};
 const env = Object.fromEntries((await Deno.readTextFile(root + '.env')).split('\n').filter(l => l && !l.startsWith('#')).map(l => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]));
 const docker = ['compose'];
 const socket = (Deno.env.get('XDG_RUNTIME_DIR') || '/run/user/1000') + '/balto-docker.sock';
@@ -33,7 +43,7 @@ async function add(p, sku, qty = 1) {
   const path = new URL(await p.$eval('.product-image-link', el => el.href)).pathname;
   await visit(p, path);
   await p.$eval('input[name="quantity[0][value]"]', (el, value) => { el.value = value; }, String(qty));
-  await submit(p, '.product-cart-form input[type=submit]');
+  await addToCart(p);
   return path;
 }
 async function fillCheckout(p, name) {
@@ -41,6 +51,8 @@ async function fillCheckout(p, name) {
   await p.$eval('[name="vet_customer[phone]"]', el => { el.value = '900000001'; });
   await p.$eval('[name="contact_information[email]"]', el => { el.value = 'demo-fase4@example.invalid'; });
   await p.$eval('input[name="payment_information[payment_method]"][value*="pago_simulado"]', el => el.click());
+  // Elegir el medio de pago reconstruye el panel por AJAX; se espera antes de enviar.
+  await p.waitForNetworkIdle({ idleTime: 500 });
   await submit(p, '#edit-actions-next');
 }
 try {

@@ -75,6 +75,32 @@ final class ProductCatalog {
     return ['products' => $rows, 'cache_tags' => array_unique($tags)];
   }
 
+  /**
+   * Productos de la misma categoría para "También te puede gustar".
+   *
+   * Primero los que tienen existencias; nunca incluye el producto actual.
+   */
+  public function related(ProductInterface $product, int $limit = 4): array {
+    $category = $product->get('field_category')->target_id;
+    $storage = $this->entityTypeManager->getStorage('commerce_product');
+    $query = $storage->getQuery()->condition('type', 'vet_product')->condition('status', 1)
+      ->condition('variations.entity.status', 1)->condition('product_id', $product->id(), '<>')
+      ->accessCheck(TRUE)->sort('product_id');
+    if ($category) {
+      $query->condition('field_category.target_id', $category);
+    }
+    $rows = [];
+    $tags = ['commerce_product_list', 'commerce_product_variation_list'];
+    foreach ($storage->loadMultiple($query->range(0, 12)->execute()) as $candidate) {
+      if ($candidate->access('view') && $candidate->getDefaultVariation()?->isPublished()) {
+        $rows[] = $this->present($candidate);
+        $tags = array_merge($tags, $candidate->getCacheTags(), $candidate->getDefaultVariation()->getCacheTags());
+      }
+    }
+    usort($rows, fn ($a, $b) => (int) $b['available'] <=> (int) $a['available']);
+    return ['products' => array_slice($rows, 0, $limit), 'cache_tags' => array_unique($tags)];
+  }
+
   public function stock(ProductVariationInterface $variation): int {
     // Una sola tienda y un almacén: Commerce Stock calcula el saldo del libro
     // de movimientos. Nunca se usa el valor inicial del campo como saldo.

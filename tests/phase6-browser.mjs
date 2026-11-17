@@ -2,6 +2,16 @@
 import puppeteer from 'npm:puppeteer-core@25.10.0';
 const root = new URL('../', import.meta.url).pathname;
 const base = Deno.env.get('BALTO_TEST_URL') || 'http://localhost:8080';
+// El formulario de producto usa el carrito lateral: se espera su respuesta y se cierra el panel.
+const addToCart = async (p) => {
+  await p.$eval('[data-cart-status]', (el) => { el.textContent = ''; });
+  await p.click('.product-cart-form input[type=submit]');
+  await p.waitForFunction(() => document.querySelector('.cart-drawer.is-open') && document.querySelector('[data-cart-status]').textContent.trim() !== '', { timeout: 20000 });
+  const status = await p.$eval('[data-cart-status]', (el) => el.textContent);
+  await p.keyboard.press('Escape');
+  await p.waitForFunction(() => document.querySelector('[data-cart-drawer]').hidden, { timeout: 5000 });
+  return status;
+};
 const results = [], errors = [];
 const check = (ok, message) => { if (!ok) throw new Error(message); results.push(message); console.log('OK:', message); };
 const browser = await puppeteer.launch({ executablePath: Deno.env.get('BALTO_BROWSER') || '/opt/brave-bin/brave', headless:true, args:['--no-sandbox','--disable-dev-shm-usage'] });
@@ -35,7 +45,7 @@ try {
   check((await page.$eval('.chat-history', e => e.textContent)).includes('Dog Chow'), 'Historial conservado al navegar dentro de la pestaña');
   await Promise.all([page.waitForNavigation({waitUntil:'networkidle0'}),page.click('.chat-links a')]);
   check(new URL(page.url()).pathname.startsWith('/product/'), 'Desde el chat se abre el detalle nativo de Commerce');
-  await Promise.all([page.waitForNavigation({waitUntil:'networkidle0'}),page.click('.product-cart-form input[type=submit]')]);
+  await addToCart(page);
   await visit('/cart');
   check((await page.$eval('main',e=>e.textContent)).includes('Dog Chow'), 'Producto consultado en chat se puede agregar al carrito');
   // El carrito de esta sesión es temporal; quitar su producto no cambia stock.

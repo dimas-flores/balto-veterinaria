@@ -22,7 +22,17 @@ function vet_theme_preprocess_page(array &$variables): void {
     $variables['vet_real_logo'] = TRUE;
   }
   $variables['vet_year'] = date('Y');
-  $variables['payment_methods'] = _vet_theme_payment_methods();
+  // Barra de contacto fija en móvil, salvo en carrito y checkout.
+  $route = (string) \Drupal::routeMatch()->getRouteName();
+  $variables['show_action_bar'] = !str_starts_with($route, 'commerce_checkout.') && $route !== 'commerce_cart.page';
+  $variables['#cache']['contexts'][] = 'route';
+  $variables['cart_count'] = [
+    '#lazy_builder' => ['\\Drupal\\vet_api\\Render\\CartCount::build', []],
+    '#create_placeholder' => TRUE,
+  ];
+  $variables['payment_methods'] = _vet_theme_payment_methods($variables['business']['payment_methods'] ?? '');
+  // La disponibilidad de Culqi depende de la pasarela: se invalida al cambiarla.
+  $variables['#cache']['tags'][] = 'config:commerce_payment_gateway_list';
 }
 
 /**
@@ -32,7 +42,7 @@ function vet_theme_preprocess_page(array &$variables): void {
  * PagoEfectivo/Culqi como disponible salvo que la pasarela exista,
  * esté activa y sus credenciales del entorno configurado sean válidas.
  */
-function _vet_theme_payment_methods(): array {
+function _vet_theme_payment_methods(string $local_methods = ''): array {
   $methods = [
     [
       'icon' => 'clock',
@@ -43,7 +53,8 @@ function _vet_theme_payment_methods(): array {
     [
       'icon' => 'bag',
       'label' => 'Pago al recoger en tienda',
-      'note' => 'Efectivo, tarjeta o Yape directo en el local.',
+      // Se usan los medios confirmados por el propietario en Datos del negocio.
+      'note' => trim($local_methods) !== '' ? trim($local_methods) : 'Consulta los medios aceptados en el local.',
       'available' => TRUE,
     ],
     [
@@ -89,6 +100,7 @@ function _vet_theme_payment_methods(): array {
 /** Implements hook_preprocess_HOOK() for vet_home. */
 function vet_theme_preprocess_vet_home(array &$variables): void {
   $variables['vet_assets'] = base_path() . \Drupal::service('extension.list.theme')->getPath('vet_theme');
+  _vet_theme_attach_cart_forms($variables['featured_products']);
 }
 
 /** Datos de detalle desde las entidades de Commerce y su saldo de stock. */
@@ -96,10 +108,34 @@ function vet_theme_preprocess_commerce_product(array &$variables): void {
   if ($variables['product_entity']->bundle() === 'vet_product') {
     $variables['balto_product'] = \Drupal::service('vet_api.catalog')->present($variables['product_entity']);
     $variables['business'] = \Drupal::service('vet_api.business')->getBusiness();
+    $related = \Drupal::service('vet_api.catalog')->related($variables['product_entity']);
+    $variables['related_products'] = $related['products'];
+    _vet_theme_attach_cart_forms($variables['related_products']);
+    $variables['#cache']['tags'] = array_merge($variables['#cache']['tags'] ?? [], $related['cache_tags']);
   }
 }
 
 /** Implements hook_preprocess_HOOK() for vet_catalog. */
 function vet_theme_preprocess_vet_catalog(array &$variables): void {
   $variables['vet_assets'] = base_path() . \Drupal::service('extension.list.theme')->getPath('vet_theme');
+  _vet_theme_attach_cart_forms($variables['products']);
+}
+
+/**
+ * Añade a cada tarjeta con existencias el formulario real de Commerce.
+ *
+ * Se usa el lazy builder de Commerce: el formulario se genera como
+ * marcador de posición, así la caché de la página no comparte tokens ni
+ * carritos entre visitantes. El stock se valida igual al enviar.
+ */
+function _vet_theme_attach_cart_forms(array &$items): void {
+  $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  foreach ($items as &$item) {
+    if (!empty($item['available']) && !empty($item['id'])) {
+      $item['cart_form'] = [
+        '#lazy_builder' => ['commerce_product.lazy_builders:addToCartForm', [$item['id'], 'default', TRUE, $langcode]],
+        '#create_placeholder' => TRUE,
+      ];
+    }
+  }
 }

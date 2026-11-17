@@ -3,6 +3,16 @@ import puppeteer from 'npm:puppeteer-core@25.10.0';
 
 const root = new URL('../', import.meta.url).pathname;
 const base = Deno.env.get('BALTO_TEST_URL') || 'http://localhost:8080';
+// El formulario de producto usa el carrito lateral: se espera su respuesta y se cierra el panel.
+const addToCart = async (p) => {
+  await p.$eval('[data-cart-status]', (el) => { el.textContent = ''; });
+  await p.click('.product-cart-form input[type=submit]');
+  await p.waitForFunction(() => document.querySelector('.cart-drawer.is-open') && document.querySelector('[data-cart-status]').textContent.trim() !== '', { timeout: 20000 });
+  const status = await p.$eval('[data-cart-status]', (el) => el.textContent);
+  await p.keyboard.press('Escape');
+  await p.waitForFunction(() => document.querySelector('[data-cart-drawer]').hidden, { timeout: 5000 });
+  return status;
+};
 const env = Object.fromEntries((await Deno.readTextFile(root + '.env')).split('\n').filter(l => l && !l.startsWith('#')).map(l => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]));
 const profile = await Deno.makeTempDir({ prefix: 'balto-catalog-' });
 const browser = await puppeteer.launch({ executablePath: Deno.env.get('BALTO_BROWSER') || '/opt/brave-bin/brave', headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'], userDataDir: profile });
@@ -54,9 +64,12 @@ try {
     const response = await visit('/tienda?' + invalid);
     check(response.status() === 400, `Filtro inválido rechazado: ${invalid}`);
   }
+  // El saldo cambia con cada pedido de prueba: se compara con el que muestra el catálogo.
+  await visit('/tienda?q=BAL-ALI-001');
+  const listedStock = await page.$eval('.product-card[data-sku="BAL-ALI-001"] .stock-label', el => el.textContent.match(/\d+/)?.[0]);
   await visit(detail);
   check((await page.$eval('.product-detail-price', el => el.textContent)).includes('S/ 189.90'), 'Detalle muestra precio en soles');
-  check((await page.$eval('.product-detail-price', el => el.textContent)).includes('12 unidades'), 'Detalle muestra stock real de Commerce Stock');
+  check(!!listedStock && (await page.$eval('.product-detail-price', el => el.textContent)).includes(listedStock + ' unidades'), 'Detalle muestra stock real de Commerce Stock');
   check(await page.$$eval('h1', els => els.length === 1), 'Detalle sin título duplicado');
   await readyImages();
   await page.screenshot({ path: root + 'docs/capturas/fase-3-producto.png', fullPage: true });
@@ -70,22 +83,22 @@ try {
   check(await page.$eval('.product-cart-form input[type=submit]', el => el.disabled), 'Producto agotado tiene compra deshabilitada');
   // Se quita el bloqueo HTML para demostrar que la protección está en servidor.
   await page.evaluate(() => { const form = document.querySelector('.product-cart-form form'); form.noValidate = true; form.querySelectorAll('[disabled]').forEach(el => { el.disabled = false; }); });
-  await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('.product-cart-form input[type=submit]')]);
+  await addToCart(page);
   await visit('/cart');
   check(await page.$$eval('input[name^="edit_quantity"]', els => els.length === 0), 'Un POST manipulado no agrega el producto agotado');
   await visit(detail);
   const setQuantity = async quantity => page.$eval('input[name="quantity[0][value]"]', (el, value) => { el.value = value; el.removeAttribute('max'); el.removeAttribute('min'); el.removeAttribute('step'); el.closest('form').noValidate = true; }, String(quantity));
-  const submitProduct = () => Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('.product-cart-form input[type=submit]')]);
-  await setQuantity(13);
+  const submitProduct = () => addToCart(page);
+  await setQuantity(Number(listedStock) + 1);
   await submitProduct();
-  check((await page.$eval('body', el => el.textContent)).includes('Solo hay 12'), 'El servidor rechaza agregar más unidades que el stock');
+  check((await page.$eval('body', el => el.textContent)).includes('Solo hay ' + listedStock), 'El servidor rechaza agregar más unidades que el stock');
   await setQuantity(1);
   await submitProduct();
   await visit('/cart');
   check(await page.$$eval('input[name^="edit_quantity"]', els => els.length === 1 && Number(els[0].value) === 1), 'Una unidad disponible se agrega al carrito real');
   await visit(detail);
-  check((await page.$eval('.product-detail-price', el => el.textContent)).includes('12 unidades'), 'Agregar al carrito no descuenta ni reserva stock');
-  await setQuantity(12);
+  check((await page.$eval('.product-detail-price', el => el.textContent)).includes(listedStock + ' unidades'), 'Agregar al carrito no descuenta ni reserva stock');
+  await setQuantity(Number(listedStock));
   await submitProduct();
   check((await page.$eval('body', el => el.textContent)).includes('ya tienes'), 'La validación incluye unidades ya presentes en el carrito');
   await visit('/cart');
@@ -122,14 +135,14 @@ try {
   const publicPage = await publicContext.newPage();
   await publicPage.goto(base + detail, { waitUntil: 'networkidle0' });
   check((await publicPage.$eval('.product-detail-price', el => el.textContent)).includes('S/ 190.90'), 'Precio editado desde administración reflejado en detalle público');
-  check((await publicPage.$eval('.product-detail-price', el => el.textContent)).includes('14 unidades'), 'Movimiento de stock reflejado en detalle público');
+  check((await publicPage.$eval('.product-detail-price', el => el.textContent)).includes((Number(listedStock) + 2) + ' unidades'), 'Movimiento de stock reflejado en detalle público');
   await publicPage.goto(base + '/tienda?q=Dog%20Chow', { waitUntil: 'networkidle0' });
-  check((await publicPage.$eval('.product-price-row', el => el.textContent)).includes('190.90') && (await publicPage.$eval('.product-price-row', el => el.textContent)).includes('14 disponibles'), 'Precio y stock nuevos invalidan también la caché del catálogo');
+  check((await publicPage.$eval('.product-price-row', el => el.textContent)).includes('190.90') && (await publicPage.$eval('.product-price-row', el => el.textContent)).includes((Number(listedStock) + 2) + ' disponibles'), 'Precio y stock nuevos invalidan también la caché del catálogo');
   await restore();
   restore = null;
   await publicContext.close();
   await page.goto(base + detail, { waitUntil: 'networkidle0' });
-  check((await page.$eval('.product-detail-price', el => el.textContent)).includes('189.90') && (await page.$eval('.product-detail-price', el => el.textContent)).includes('12 unidades'), 'Precio y existencias originales restaurados después de las pruebas');
+  check((await page.$eval('.product-detail-price', el => el.textContent)).includes('189.90') && (await page.$eval('.product-detail-price', el => el.textContent)).includes(listedStock + ' unidades'), 'Precio y existencias originales restaurados después de las pruebas');
   check(errors.length === 0, 'Sin errores JavaScript ni respuestas locales HTTP 500');
   await Deno.writeTextFile(root + 'docs/verificacion-fase-3.json', JSON.stringify({ date: new Date().toISOString(), results, errors }, null, 2));
 }

@@ -1,0 +1,20 @@
+services:
+  balto_automation.notifier:
+    class: Drupal\balto_automation\Service\N8nNotifier
+    arguments: ['@http_client', '@logger.factory']
+
+  balto_automation.order_notifier:
+    class: Drupal\balto_automation\EventSubscriber\OrderPlacedNotifier
+    arguments: ['@balto_automation.notifier']
+    tags:
+      - { name: event_subscriber }
+
+  balto_automation.order_confirmation_mailer:
+    class: Drupal\balto_automation\EventSubscriber\OrderConfirmationMailer
+    arguments: ['@http_client', '@logger.factory']
+    tags:
+      - { name: event_subscriber }
+
+  balto_automation.email_checker:
+    class: Drupal\balto_automation\Service\EmailChecker
+    arguments: ['@http_client', '@cache.default', '@logger.factory']

@@ -2,6 +2,16 @@
 import puppeteer from 'npm:puppeteer-core@25.10.0';
 const root = new URL('../', import.meta.url).pathname;
 const base = Deno.env.get('BALTO_TEST_URL') || 'http://localhost:8080';
+// El formulario de producto usa el carrito lateral: se espera su respuesta y se cierra el panel.
+const addToCart = async (p) => {
+  await p.$eval('[data-cart-status]', (el) => { el.textContent = ''; });
+  await p.click('.product-cart-form input[type=submit]');
+  await p.waitForFunction(() => document.querySelector('.cart-drawer.is-open') && document.querySelector('[data-cart-status]').textContent.trim() !== '', { timeout: 20000 });
+  const status = await p.$eval('[data-cart-status]', (el) => el.textContent);
+  await p.keyboard.press('Escape');
+  await p.waitForFunction(() => document.querySelector('[data-cart-drawer]').hidden, { timeout: 5000 });
+  return status;
+};
 const sshHost = Deno.env.get('BALTO_SSH_HOST');
 const sshKey = Deno.env.get('BALTO_SSH_KEY');
 const reportPrefix = Deno.env.get('BALTO_REPORT_PREFIX') || 'fase-7-demo';
@@ -57,7 +67,7 @@ try{
   const productLink=await guest.$eval('.chat-message-assistant:last-child .chat-links a',a=>a.href);
   await guest.goto(productLink,{waitUntil:'networkidle0'});
   check(new URL(guest.url()).pathname==='/product/'+before.product_id,'Enlace del chat abre el producto consultado');
-  await submit(guest,'.product-cart-form input[type=submit]');
+  await addToCart(guest);
   await visit(guest,'/cart');
   check((await guest.$eval('main',e=>e.textContent)).includes('Pelota de goma'),'Carrito contiene el producto elegido desde el chat');
   await submit(guest,'#edit-checkout');
@@ -65,6 +75,8 @@ try{
   await guest.type('[name="vet_customer[phone]"]','900000002');
   await guest.type('[name="contact_information[email]"]','demo-fase7@example.invalid');
   await guest.$eval('input[name="payment_information[payment_method]"][value*="pago_simulado"]', e=>e.click());
+  // Elegir el medio de pago reconstruye el panel por AJAX; se espera antes de enviar.
+  await guest.waitForNetworkIdle({idleTime:500});
   await submit(guest,'#edit-actions-next');
   check((await guest.$eval('main',e=>e.textContent)).includes('No se realiza ningún cobro real'),'Revisión indica que el pago es simulado');
   await submit(guest,'#edit-actions-next');

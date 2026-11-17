@@ -21,7 +21,8 @@ try{
  check(await p.$eval('.about-photo',e=>e.textContent.includes('propietario')),'Foto del propietario con contexto de formación, sin títulos inventados');
  check(await p.$$eval('.story-card',es=>es.length===3),'Tres historias seleccionadas desde Drupal');
  check((await p.$eval('#historias',e=>e.textContent)).includes('2023')&&(await p.$eval('#historias',e=>e.textContent)).includes('2021'),'Publicaciones históricas identificadas con su contexto temporal');
- check(await p.$$eval('main img',es=>es.every(e=>e.alt.trim().length>0)),'Fotografías con texto alternativo');
+ // Las imágenes decorativas se marcan con aria-hidden y alt vacío; el resto necesita descripción.
+ check(await p.$$eval('main img',es=>es.every(e=>e.alt.trim().length>0||(e.getAttribute('aria-hidden')==='true'&&e.getAttribute('alt')===''))),'Fotografías con texto alternativo');
  await p.screenshot({path:root+'docs/capturas/'+prefix+'-portada.png'});
  await p.$eval('#nosotros',e=>e.scrollIntoView());
  await p.screenshot({path:root+'docs/capturas/'+prefix+'-nosotros.png'});
