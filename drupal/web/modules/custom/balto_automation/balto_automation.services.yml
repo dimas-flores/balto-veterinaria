@@ -14,3 +14,7 @@ services:
     arguments: ['@http_client', '@logger.factory']
     tags:
       - { name: event_subscriber }
+
+  balto_automation.email_checker:
+    class: Drupal\balto_automation\Service\EmailChecker
+    arguments: ['@http_client', '@cache.default', '@logger.factory']

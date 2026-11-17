@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Drupal\commerce_payment\Entity\PaymentInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_commerce_payment_insert().
@@ -29,5 +30,23 @@ function _balto_automation_payment_paid(PaymentInterface $payment): void {
   $order = $payment->getOrder();
   if ($order) {
     \Drupal::service('balto_automation.notifier')->order($order, 'paid');
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Revisa el correo del pedido para evitar confirmaciones que nunca llegan.
+ */
+function balto_automation_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  if (str_starts_with($form_id, 'commerce_checkout_flow') && isset($form['contact_information']['email'])) {
+    $form['contact_information']['email']['#element_validate'][] = '_balto_automation_validate_email';
+  }
+}
+
+function _balto_automation_validate_email(array &$element, FormStateInterface $form_state): void {
+  $email = (string) ($element['#value'] ?? '');
+  if ($email !== '' && !\Drupal::service('balto_automation.email_checker')->isDeliverable($email)) {
+    $form_state->setError($element, t('Revisa tu correo: parece que el dominio no existe. Escríbelo de nuevo para recibir la confirmación de tu pedido.'));
   }
 }
