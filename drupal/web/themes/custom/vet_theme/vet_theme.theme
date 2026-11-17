@@ -22,6 +22,68 @@ function vet_theme_preprocess_page(array &$variables): void {
     $variables['vet_real_logo'] = TRUE;
   }
   $variables['vet_year'] = date('Y');
+  $variables['payment_methods'] = _vet_theme_payment_methods();
+}
+
+/**
+ * Medios de pago para la franja informativa del pie de página.
+ *
+ * "available" refleja el estado real del comercio: nunca se marca
+ * PagoEfectivo/Culqi como disponible salvo que la pasarela exista,
+ * esté activa y sus credenciales del entorno configurado sean válidas.
+ */
+function _vet_theme_payment_methods(): array {
+  $methods = [
+    [
+      'icon' => 'clock',
+      'label' => 'Pago simulado',
+      'note' => 'Para la demo académica — no se realiza ningún cobro real.',
+      'available' => TRUE,
+    ],
+    [
+      'icon' => 'bag',
+      'label' => 'Pago al recoger en tienda',
+      'note' => 'Efectivo, tarjeta o Yape directo en el local.',
+      'available' => TRUE,
+    ],
+    [
+      'icon' => 'chat',
+      'label' => 'Yape o transferencia coordinada',
+      'note' => 'Coordinas el pago por WhatsApp antes de confirmar el pedido.',
+      'available' => TRUE,
+    ],
+    [
+      'icon' => 'phone',
+      'label' => 'PagoEfectivo (código CIP)',
+      'note' => 'Banca móvil, agentes o internet banking — próximamente vía Culqi.',
+      'available' => FALSE,
+    ],
+  ];
+
+  if (\Drupal::hasService('balto_payments.orders') && \Drupal::hasService('entity_type.manager')) {
+    try {
+      // Se busca por ID de plugin, no por ID de configuración: el gateway
+      // puede llamarse distinto según cómo se haya creado (p. ej.
+      // "culqi_automatico" en scripts/prepare-automatic-payments.php).
+      $gateways = \Drupal::entityTypeManager()->getStorage('commerce_payment_gateway')->loadMultiple();
+      foreach ($gateways as $gateway) {
+        if ($gateway->getPluginId() !== 'balto_culqi_orders') {
+          continue;
+        }
+        if ($gateway->status()) {
+          \Drupal::service('balto_payments.orders')->credentials($gateway->getPlugin()->getMode());
+          $methods[3]['available'] = TRUE;
+          $methods[3]['note'] = 'Banca móvil, agentes o internet banking mediante código CIP — vía Culqi.';
+        }
+        break;
+      }
+    }
+    catch (\Throwable) {
+      // Sin credenciales válidas o pasarela desactivada: se mantiene "próximamente".
+    }
+  }
+
+  return $methods;
 }
 
 /** Implements hook_preprocess_HOOK() for vet_home. */
