@@ -1,5 +1,5 @@
 global:
-  version: 2026.11.14.2
+  version: 2026.11.17.1
   css:
     theme:
       css/fonts.css: {}
@@ -11,6 +11,7 @@ global:
     js/catalog.js: {}
     js/carousel.js: {}
     js/chat.js: {}
+    js/quantity.js: {}
   dependencies:
     - core/drupal
     - core/drupalSettings
