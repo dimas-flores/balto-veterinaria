@@ -458,3 +458,17 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;letter-spacing:-.
 .product-cart-form .qty-stepper input[type=number]{width:52px;min-height:48px;border:0;border-radius:0;text-align:center;padding:0;-moz-appearance:textfield;appearance:textfield}
 .qty-stepper input::-webkit-inner-spin-button,.qty-stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .qty-stepper button{width:44px;border:0;background:transparent;color:var(--green);font-size:20px;line-height:1;cursor:pointer}.qty-stepper button:hover{background:#eef2e9}.qty-stepper button:disabled{color:#b8bdb2;cursor:not-allowed;background:transparent}.qty-stepper button:focus-visible{outline:3px solid #b58c1b;outline-offset:-3px}
+/* Tarjetas: compra directa con el formulario de Commerce (cantidad 1). */
+.product-card-cart{margin-top:16px}.product-card-cart .field--name-purchased-entity,.product-card-cart .field--name-quantity{display:none}.product-card-cart .form-actions{margin:0}
+.product-card-cart input[type=submit]{width:100%;min-height:46px;border-radius:8px;font-size:13px;font-weight:650;cursor:pointer}
+.product-card-cart input[type=submit]:disabled{background:#dddcd1;color:#777970;cursor:not-allowed}
+/* Contador del carrito en el encabezado. */
+.cart-link{position:relative}.cart-link .cart-count{display:grid;place-items:center;position:absolute;top:2px;left:12px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--yellow);color:#3d2f05;font-size:10px;font-weight:700;line-height:1}
+/* Avisos de confirmación como notificación flotante; los errores siguen en la página. */
+.notices .messages--status.is-toast{position:fixed;z-index:60;left:16px;right:16px;bottom:84px;margin:0;max-width:420px;padding:16px 48px 16px 18px;border:0;border-radius:12px;background:var(--green);color:#fff;box-shadow:0 12px 30px #0d261633;animation:toast-in .25s ease-out}
+.notices .messages--status.is-toast a{color:var(--yellow);font-weight:650;text-decoration:underline;text-underline-offset:3px}
+.toast-close{position:absolute;top:8px;right:8px;width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:#fff;font-size:20px;line-height:1;cursor:pointer}.toast-close:hover{background:#ffffff1a}.toast-close:focus-visible{outline:3px solid var(--yellow);outline-offset:1px}
+@keyframes toast-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(min-width:600px){.notices .messages--status.is-toast{left:24px;right:auto;bottom:24px}}
+@media(prefers-reduced-motion:reduce){.notices .messages--status.is-toast{animation:none}}
+@media(max-width:599px){.product-card-cart input[type=submit]{font-size:12px;padding-inline:6px}}

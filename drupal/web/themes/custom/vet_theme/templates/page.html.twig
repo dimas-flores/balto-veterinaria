@@ -26,7 +26,7 @@
         <a class="mobile-contact" href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">Separa tu cita por WhatsApp</a>
       </nav>
       <div class="header-actions">
-        <a class="cart-link" href="{{ path('commerce_cart.page') }}" aria-label="Ver carrito">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'bag'} only %}<span>Carrito</span></a>
+        <a class="cart-link" href="{{ path('commerce_cart.page') }}" aria-label="Ver carrito">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'bag'} only %}<span>Carrito</span>{{ cart_count }}</a>
         <a class="button button-small header-appointment" href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">Contáctanos {% include '@vet_theme/templates/icon.html.twig' with {icon: 'arrow-up-right'} only %}</a>
       </div>
     </div>

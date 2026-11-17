@@ -22,6 +22,10 @@ function vet_theme_preprocess_page(array &$variables): void {
     $variables['vet_real_logo'] = TRUE;
   }
   $variables['vet_year'] = date('Y');
+  $variables['cart_count'] = [
+    '#lazy_builder' => ['\\Drupal\\vet_api\\Render\\CartCount::build', []],
+    '#create_placeholder' => TRUE,
+  ];
   $variables['payment_methods'] = _vet_theme_payment_methods($variables['business']['payment_methods'] ?? '');
   // La disponibilidad de Culqi depende de la pasarela: se invalida al cambiarla.
   $variables['#cache']['tags'][] = 'config:commerce_payment_gateway_list';
@@ -92,6 +96,7 @@ function _vet_theme_payment_methods(string $local_methods = ''): array {
 /** Implements hook_preprocess_HOOK() for vet_home. */
 function vet_theme_preprocess_vet_home(array &$variables): void {
   $variables['vet_assets'] = base_path() . \Drupal::service('extension.list.theme')->getPath('vet_theme');
+  _vet_theme_attach_cart_forms($variables['featured_products']);
 }
 
 /** Datos de detalle desde las entidades de Commerce y su saldo de stock. */
@@ -105,4 +110,24 @@ function vet_theme_preprocess_commerce_product(array &$variables): void {
 /** Implements hook_preprocess_HOOK() for vet_catalog. */
 function vet_theme_preprocess_vet_catalog(array &$variables): void {
   $variables['vet_assets'] = base_path() . \Drupal::service('extension.list.theme')->getPath('vet_theme');
+  _vet_theme_attach_cart_forms($variables['products']);
+}
+
+/**
+ * Añade a cada tarjeta con existencias el formulario real de Commerce.
+ *
+ * Se usa el lazy builder de Commerce: el formulario se genera como
+ * marcador de posición, así la caché de la página no comparte tokens ni
+ * carritos entre visitantes. El stock se valida igual al enviar.
+ */
+function _vet_theme_attach_cart_forms(array &$items): void {
+  $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  foreach ($items as &$item) {
+    if (!empty($item['available']) && !empty($item['id'])) {
+      $item['cart_form'] = [
+        '#lazy_builder' => ['commerce_product.lazy_builders:addToCartForm', [$item['id'], 'default', TRUE, $langcode]],
+        '#create_placeholder' => TRUE,
+      ];
+    }
+  }
 }

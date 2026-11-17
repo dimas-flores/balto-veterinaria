@@ -12,6 +12,7 @@ global:
     js/carousel.js: {}
     js/chat.js: {}
     js/quantity.js: {}
+    js/cart-feedback.js: {}
   dependencies:
     - core/drupal
     - core/drupalSettings
