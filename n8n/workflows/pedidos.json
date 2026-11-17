@@ -45,7 +45,7 @@
         300
       ],
       "parameters": {
-        "jsCode": "const o = $input.first().json.body || {};\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst items = Array.isArray(o.items) ? o.items.slice(0, 20) : [];\nconst lines = items.map(i => `• ${esc(i.quantity)} × ${esc(i.title)}`).join('\\n');\nconst text = `🛒 <b>Pedido nuevo #${esc(o.order_number)}</b>\\n\\n${lines}\\n\\n<b>Total:</b> ${esc(o.currency)} ${esc(o.total)}\\n<b>Pago:</b> ${esc(o.payment_method) || 'sin definir'}\\n<b>Cliente:</b> ${esc(o.email) || 'sin correo'}`;\nreturn [{ json: { text } }];"
+        "jsCode": "const o = $input.first().json.body || {};\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst items = Array.isArray(o.items) ? o.items.slice(0, 20) : [];\nconst lines = items.map(i => `• ${esc(i.quantity)} × ${esc(i.title)}`).join('\\n');\nconst title = o.event === 'paid' ? '💰 <b>Pago confirmado' : '🛒 <b>Pedido nuevo';\nconst text = `${title} #${esc(o.order_number)}</b>\\n\\n${lines}\\n\\n<b>Total:</b> ${esc(o.currency)} ${esc(o.total)}\\n<b>Pago:</b> ${esc(o.payment_method) || 'sin definir'}\\n<b>Cliente:</b> ${esc(o.email) || 'sin correo'}`;\nreturn [{ json: { text } }];"
       }
     },
     {

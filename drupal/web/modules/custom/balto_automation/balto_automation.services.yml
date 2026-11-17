@@ -1,7 +1,11 @@
 services:
+  balto_automation.notifier:
+    class: Drupal\balto_automation\Service\N8nNotifier
+    arguments: ['@http_client', '@logger.factory']
+
   balto_automation.order_notifier:
     class: Drupal\balto_automation\EventSubscriber\OrderPlacedNotifier
-    arguments: ['@http_client', '@logger.factory']
+    arguments: ['@balto_automation.notifier']
     tags:
       - { name: event_subscriber }
 
