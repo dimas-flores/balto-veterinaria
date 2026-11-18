@@ -17,7 +17,10 @@ function vet_theme_preprocess_page(array &$variables): void {
     . (is_file(DRUPAL_ROOT . '/' . $theme_path . '/images/logo.png') ? 'logo.png' : 'logo-placeholder.svg');
   $gallery = \Drupal::service('vet_api.clinic_gallery')->get();
   if (!$has_uploaded_logo && $gallery['logo']) {
-    $variables['vet_logo'] = $gallery['logo']['original_url'];
+    // Copia ligera (240 px): el logo se muestra a 120 px y el original pesa ~800 KB.
+    $variables['vet_logo'] = is_file(DRUPAL_ROOT . '/' . $theme_path . '/images/logo-balto.webp')
+      ? $variables['vet_assets'] . '/images/logo-balto.webp'
+      : $gallery['logo']['original_url'];
     $variables['vet_logo_crop'] = TRUE;
     $variables['vet_real_logo'] = TRUE;
   }
