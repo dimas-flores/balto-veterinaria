@@ -11,8 +11,8 @@ facebook_name: 'BALTO Veterinaria'
 facebook_url: ''
 email: ''
 hospitalization: '24 horas'
-consultation_schedule: 'Horario de ejemplo: lunes a sábado de 09:00 a 19:00. Pendiente de confirmación por BALTO.'
-schedule_is_example: true
+consultation_schedule: 'Lunes a sábado de 09:00 a 19:00'
+schedule_is_example: false
 catalog_is_example: false
 about_title: 'Porque ellos también son familia.'
 about_text: "Somos BALTO Veterinaria, en Juliaca. Acompañamos el cuidado de tu mascota con medicina veterinaria, diagnóstico, cirugía y hospitalización.\r\n\r\nCreemos en una atención cercana y en conversar contigo sobre lo que necesita. Escríbenos por WhatsApp para conocer nuestros servicios y coordinar tu visita."
