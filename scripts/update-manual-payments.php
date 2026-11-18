@@ -4,15 +4,13 @@
 use Drupal\commerce_checkout\Entity\CheckoutFlow;
 use Drupal\commerce_payment\Entity\PaymentGateway;
 
-if (\Drupal::state()->get('balto.manual_payments.v3')) {
-  return;
-}
+$configured = \Drupal::state()->get('balto.manual_payments.v3');
 foreach ([
   'pagar_al_recoger' => ['Pagar al recoger en BALTO', -20, 'Tu pago está pendiente. Confirma la disponibilidad y el retiro con BALTO por WhatsApp. Pagarás en el establecimiento.'],
   'yape_coordinado' => ['Yape — coordinar primero por WhatsApp', -10, 'Tu pago está pendiente. BALTO confirmará disponibilidad y monto antes de indicarte el pago. La confirmación del dinero recibido la realiza el negocio.'],
 ] as $id => [$label, $weight, $instructions]) {
   $gateway = PaymentGateway::load($id);
-  if ($gateway && in_array($gateway->getPluginId(), ['manual', 'vet_coordinated_manual'], TRUE)) {
+  if (!$configured && $gateway && in_array($gateway->getPluginId(), ['manual', 'vet_coordinated_manual'], TRUE)) {
     $gateway->setPluginId('vet_coordinated_manual');
     $gateway->setPluginConfiguration([
       'display_label' => $label, 'mode' => 'n/a', 'collect_billing_information' => FALSE,
@@ -30,6 +28,10 @@ foreach ([
     ])->save();
   }
 }
+if ($configured) {
+  return;
+}
+
 $flow = CheckoutFlow::load('default');
 $configuration = $flow->getPlugin()->getConfiguration();
 $configuration['panes']['completion_message']['step'] = '_disabled';
@@ -38,4 +40,4 @@ $flow->set('label', 'Pedidos BALTO: retiro y pago coordinado');
 $flow->getPlugin()->setConfiguration($configuration);
 $flow->save();
 \Drupal::state()->set('balto.manual_payments.v3', TRUE);
-echo "Pagos al recoger, Yape coordinado y demostración disponibles.\n";
+echo "Pagos al recoger y Yape coordinado configurados.\n";
