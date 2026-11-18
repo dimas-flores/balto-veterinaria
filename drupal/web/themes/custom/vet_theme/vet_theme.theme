@@ -45,12 +45,6 @@ function vet_theme_preprocess_page(array &$variables): void {
 function _vet_theme_payment_methods(string $local_methods = ''): array {
   $methods = [
     [
-      'icon' => 'clock',
-      'label' => 'Pago simulado',
-      'note' => 'Para la demo académica — no se realiza ningún cobro real.',
-      'available' => TRUE,
-    ],
-    [
       'icon' => 'bag',
       'label' => 'Pago al recoger en tienda',
       // Se usan los medios confirmados por el propietario en Datos del negocio.

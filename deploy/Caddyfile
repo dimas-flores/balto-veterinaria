@@ -2,7 +2,7 @@
 {$BALTO_SITE_ADDRESS} {
 	encode zstd gzip
 
-	# Solo se publica este webhook; el editor y la API de administración de n8n
+	# Se publican los webhooks de chat y Telegram. El editor y la API de n8n
 	# permanecen en 127.0.0.1:5678 y no se enrutan desde internet.
 	@chat {
 		path /webhook/chat
@@ -12,6 +12,14 @@
 		request_body {
 			max_size 8KB
 		}
+		reverse_proxy n8n:5678
+	}
+
+	@telegram_bot {
+		path /webhook/balto-bot-webhook/webhook
+		method POST
+	}
+	handle @telegram_bot {
 		reverse_proxy n8n:5678
 	}
 

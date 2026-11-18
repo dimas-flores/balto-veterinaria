@@ -45,7 +45,7 @@ function vet_api_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $
       '#type' => 'container', '#weight' => -100,
       '#attributes' => ['class' => ['checkout-demo-notice']],
       'title' => ['#type' => 'html_tag', '#tag' => 'strong', '#value' => t('Retiro en BALTO · Pago al recoger o Yape coordinado')],
-      'description' => ['#type' => 'html_tag', '#tag' => 'p', '#value' => t('BALTO confirmará disponibilidad y total por WhatsApp antes del pago. La opción «Pago simulado» es solo para demostraciones y no genera cobros.')],
+      'description' => ['#type' => 'html_tag', '#tag' => 'p', '#value' => t('BALTO confirmará disponibilidad y total por WhatsApp antes del pago.')],
     ];
   }
   if ($cart) {

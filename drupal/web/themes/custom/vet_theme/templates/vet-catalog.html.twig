@@ -6,7 +6,7 @@
     <p>Alimentos, accesorios y cuidado para perros y gatos. Encuentra lo que necesita, en un solo lugar.</p>
     <form class="catalog-hero-search" action="{{ path('vet_api.catalog') }}" method="get">
       <label for="catalog-hero-query">¿Qué buscas para tu mascota?</label>
-      <div><input id="catalog-hero-query" type="search" name="q" value="{{ filters.q }}" placeholder="Prueba con alimento, collar…" maxlength="100" />
+      <div><input id="catalog-hero-query" type="search" name="q" value="{{ filters.q }}" placeholder="Busca alimento, collar…" maxlength="100" />
       {% if filters.category %}<input type="hidden" name="category" value="{{ filters.category }}" />{% endif %}
       {% if filters.species %}<input type="hidden" name="species" value="{{ filters.species }}" />{% endif %}
       <button type="submit" class="button">Buscar {% include '@vet_theme/templates/icon.html.twig' with {icon: 'search'} only %}</button></div>
