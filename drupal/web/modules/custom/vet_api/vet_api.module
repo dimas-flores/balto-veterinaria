@@ -135,3 +135,27 @@ function vet_api_commerce_payment_presave(\Drupal\commerce_payment\Entity\Paymen
     throw new \Drupal\commerce_payment\Exception\PaymentGatewayException('El pedido está cancelado. No se puede registrar un pago recibido.');
   }
 }
+
+/**
+ * Etiquetas Open Graph para que WhatsApp, Facebook y otros muestren una vista previa.
+ *
+ * @return array<int, array{0: array<string, mixed>, 1: string}>
+ */
+function vet_api_open_graph(string $title, string $description, string $route): array {
+  global $base_url;
+  $theme = \Drupal::service('extension.list.theme')->getPath('vet_theme');
+  $tags = [
+    'og:type' => 'website',
+    'og:locale' => 'es_PE',
+    'og:site_name' => 'BALTO Veterinaria',
+    'og:title' => $title,
+    'og:description' => $description,
+    'og:url' => \Drupal\Core\Url::fromRoute($route, [], ['absolute' => TRUE])->toString(),
+    'og:image' => $base_url . '/' . $theme . '/images/companeros.jpg',
+  ];
+  $head = [];
+  foreach ($tags as $property => $content) {
+    $head[] = [['#tag' => 'meta', '#attributes' => ['property' => $property, 'content' => $content]], 'balto_' . str_replace(':', '_', $property)];
+  }
+  return $head;
+}
