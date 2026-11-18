@@ -191,8 +191,6 @@ p{text-wrap:pretty}
 .retail-pets .icon{grid-column:2;grid-row:1/3;align-self:center}
 .retail-pets>a:hover{text-decoration:underline;text-underline-offset:4px}
 .retail-example{font-size:13px;color:#6e5a27;margin-bottom:20px}
-.featured-product-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
-.featured-product-grid .product-detail-link{text-decoration:none}
 .balto-checkout-grid .checkout-summary{background:var(--cream);border:0;border-radius:12px;padding:24px}
 .balto-checkout-grid .checkout-summary h2{font-size:24px;margin-bottom:24px}
 .balto-checkout-grid input:not([type=radio]):not([type=checkbox]):not([type=hidden]):not([type=submit]){font-size:16px;min-height:48px}
@@ -211,7 +209,6 @@ p{text-wrap:pretty}
   .retail-pets>a{padding:20px 16px}
   .retail-pets span{font-size:20px}
   .retail-pets small{font-size:12px}
-  .featured-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 /* Portada: descansar la vista entre el verde de marca y fondos cálidos. */

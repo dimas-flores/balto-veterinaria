@@ -97,7 +97,6 @@ function _vet_theme_payment_methods(string $local_methods = ''): array {
 /** Implements hook_preprocess_HOOK() for vet_home. */
 function vet_theme_preprocess_vet_home(array &$variables): void {
   $variables['vet_assets'] = base_path() . \Drupal::service('extension.list.theme')->getPath('vet_theme');
-  _vet_theme_attach_cart_forms($variables['featured_products']);
 }
 
 /** Datos de detalle desde las entidades de Commerce y su saldo de stock. */
@@ -114,7 +113,6 @@ function vet_theme_preprocess_commerce_product(array &$variables): void {
 
 /** Implements hook_preprocess_HOOK() for vet_catalog. */
 function vet_theme_preprocess_vet_catalog(array &$variables): void {
-  $variables['vet_assets'] = base_path() . \Drupal::service('extension.list.theme')->getPath('vet_theme');
   _vet_theme_attach_cart_forms($variables['products']);
 }
 

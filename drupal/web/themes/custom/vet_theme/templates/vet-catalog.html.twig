@@ -1,9 +1,8 @@
 <section class="catalog-header balto-catalog-hero catalog-trial" aria-labelledby="catalog-title">
   <div class="catalog-intro-copy">
     <nav class="catalog-breadcrumb" aria-label="Ruta de navegación"><a href="{{ path('<front>') }}">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Tienda</span></nav>
-    <p class="catalog-eyebrow">BALTO · TIENDA PARA MASCOTAS</p>
-    <h1 id="catalog-title">Su comida favorita.<br /><em>Su próximo juguete.</em></h1>
-    <p>Alimentos, accesorios y cuidado para perros y gatos. Encuentra lo que necesita, en un solo lugar.</p>
+    <h1 id="catalog-title">Tienda para mascotas</h1>
+    <p>Alimentos, accesorios y productos de cuidado para perros y gatos.</p>
     <form class="catalog-hero-search" action="{{ path('vet_api.catalog') }}" method="get">
       <label for="catalog-hero-query">¿Qué buscas para tu mascota?</label>
       <div><input id="catalog-hero-query" type="search" name="q" value="{{ filters.q }}" placeholder="Busca alimento, collar…" maxlength="100" />
@@ -12,7 +11,7 @@
       <button type="submit" class="button">Buscar {% include '@vet_theme/templates/icon.html.twig' with {icon: 'search'} only %}</button></div>
     </form>
   </div>
-  <figure class="catalog-cover"><img src="{{ vet_assets }}/images/companeros.jpg" width="1500" height="1001" alt="Dos perros juntos al aire libre" fetchpriority="high" /></figure>
+  <div class="catalog-cover" aria-hidden="true"></div>
 </section>
 <nav class="catalog-categories" aria-label="Explorar categorías"><a href="{{ path('vet_api.catalog') }}"{% if not filters.category %} aria-current="page"{% endif %}>Todo el catálogo</a>{% for id, label in categories %}<a href="{{ path('vet_api.catalog', {}, {'query': {'category': id}}) }}"{% if filters.category == id %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
 {% if business.catalog_is_example %}<div class="catalog-demo-notice"><span class="demo-indicator"></span><p><strong>Catálogo de demostración.</strong> Productos, precios y existencias de ejemplo. Las fotos son referenciales y no muestran el producto exacto.</p></div>{% endif %}

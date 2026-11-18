@@ -60,21 +60,6 @@ final class ProductCatalog {
     return ['products' => $rows, 'total' => $total, 'cache_tags' => array_unique($tags)];
   }
 
-  public function featured(): array {
-    $storage = $this->entityTypeManager->getStorage('commerce_product');
-    $ids = $storage->getQuery()->condition('type', 'vet_product')->condition('status', 1)
-      ->condition('variations.entity.status', 1)->accessCheck(TRUE)->sort('product_id')->range(0, 4)->execute();
-    $rows = [];
-    $tags = ['commerce_product_list', 'commerce_product_variation_list', 'taxonomy_term_list'];
-    foreach ($storage->loadMultiple($ids) as $product) {
-      if ($product->access('view') && $product->getDefaultVariation()?->isPublished()) {
-        $rows[] = $this->present($product);
-        $tags = array_merge($tags, $product->getCacheTags(), $product->getDefaultVariation()->getCacheTags());
-      }
-    }
-    return ['products' => $rows, 'cache_tags' => array_unique($tags)];
-  }
-
   /**
    * Productos de la misma categoría para "También te puede gustar".
    *

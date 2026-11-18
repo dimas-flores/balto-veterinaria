@@ -3,10 +3,9 @@
 .catalog-trial .catalog-intro-copy{padding:40px 44px;color:#213f2c}
 .catalog-trial .catalog-breadcrumb{display:flex;gap:12px;font-size:14px;margin-bottom:28px;color:#475b43}
 .catalog-trial .catalog-breadcrumb a{color:inherit}
-.catalog-trial .catalog-eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;margin:0 0 16px}
 .catalog-trial h1{font-size:clamp(32px,3.7vw,54px);line-height:1.12;letter-spacing:-.045em;margin:0 0 20px;color:#213f2c}
 .catalog-trial h1 em{font-family:inherit;font-style:normal;color:#576d35}
-.catalog-trial .catalog-intro-copy>p:not(.catalog-eyebrow){max-width:39ch;font-size:16px;line-height:1.65;color:#394d35;margin-bottom:24px}
+.catalog-trial .catalog-intro-copy>p{max-width:39ch;font-size:16px;line-height:1.65;color:#394d35;margin-bottom:24px}
 .catalog-trial .catalog-cover{margin:22px 22px 22px 0;min-height:0;position:relative;border-radius:140px 140px 18px 18px;overflow:hidden;background:#dce5cd}
 .catalog-trial .catalog-cover img{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:50% 50%}
 .catalog-hero-search label{display:block;font-size:14px;font-weight:800;margin-bottom:9px}
@@ -56,8 +55,21 @@
 .catalog-trial{background:#edf1e7}
 .catalog-trial h1 em{color:#4d642d}
 .catalog-trial .catalog-breadcrumb{color:#40533c}
-.catalog-trial .catalog-eyebrow{color:#40533c}
 .catalog-filter-disclosure{background:transparent;border:0;border-radius:0;overflow:visible}
 .catalog-filter-disclosure>summary{border-bottom:1px solid #d5ddce;padding-inline:2px}
 .catalog-filter-disclosure .catalog-filters{background:#f6f7f2;border:1px solid #e0e5d9;border-radius:12px;margin-top:14px;padding:18px}
 @media(min-width:901px){.catalog-filter-disclosure>summary{cursor:default;border-bottom:0;padding:4px 0 14px;font-size:18px}.catalog-filter-disclosure .catalog-filters{margin-top:0}}
+
+@media (max-width: 600px) {
+  .catalog-trial { min-height: 0; }
+  .catalog-trial .catalog-intro-copy { padding: 20px; }
+  .catalog-trial .catalog-breadcrumb { margin-bottom: 12px; }
+  .catalog-trial .catalog-cover { display: none; }
+  .catalog-trial h1 { margin-bottom: 12px; }
+  .catalog-trial .catalog-intro-copy > p { margin-bottom: 14px; }
+  .catalog-hero-search input[type=search] { padding-inline: 8px; }
+}
+
+@media (min-width: 601px) {
+  .catalog-trial .catalog-cover { background: #dce5cd url("../images/companeros.jpg") center / cover no-repeat; }
+}

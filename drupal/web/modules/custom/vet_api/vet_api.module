@@ -8,7 +8,7 @@
 /** Implements hook_theme(). */
 function vet_api_theme(): array {
   return [
-    'vet_home' => ['variables' => ['business' => [], 'services' => [], 'clinic_gallery' => [], 'featured_products' => []]],
+    'vet_home' => ['variables' => ['business' => [], 'services' => [], 'clinic_gallery' => []]],
     'vet_catalog' => ['variables' => ['business' => [], 'products' => [], 'total' => 0, 'categories' => [], 'species_options' => [], 'filters' => [], 'pager' => []]],
   ];
 }
