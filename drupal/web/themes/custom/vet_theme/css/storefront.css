@@ -185,7 +185,7 @@ p{text-wrap:pretty}
 .retail-search input:focus-visible{outline:0}
 .retail-pets{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
 .retail-pets>a{display:grid;grid-template-columns:1fr auto;gap:4px 16px;padding:24px;background:var(--soft);color:var(--green);border-radius:12px}
-.retail-pets>a:nth-child(2){background:var(--mustard)}
+.retail-pets>a:nth-child(2){background:color-mix(in srgb,var(--mustard) 38%,var(--cream))}
 .retail-pets span{font-size:24px;font-family:var(--balto-display)}
 .retail-pets small{font-size:14px;grid-column:1}
 .retail-pets .icon{grid-column:2;grid-row:1/3;align-self:center}
@@ -212,7 +212,7 @@ p{text-wrap:pretty}
 }
 
 /* Portada: descansar la vista entre el verde de marca y fondos cálidos. */
-.balto-hero{--deep:var(--green);--yellow:var(--mustard);background:var(--soft);color:var(--green)}
+.balto-hero{--deep:var(--green);--yellow:var(--mustard);background:color-mix(in srgb,var(--mustard) 9%,var(--cream));color:var(--green)}
 .balto-hero .hero-grid{background:transparent}
 .balto-hero .hero-copy{color:var(--green)}
 .balto-hero h1,.balto-hero .carousel-title{color:var(--green)}
