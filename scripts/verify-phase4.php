@@ -12,10 +12,16 @@ $check = static function (bool $ok, string $message): void {
   }
   echo "OK: $message\n";
 };
-$gateway = PaymentGateway::load('pago_simulado');
-$check($gateway && $gateway->status() && $gateway->getPluginId() === 'vet_simulated_manual', 'Pasarela manual local habilitada.');
-$check(str_contains($gateway->label(), 'No se realiza ningún cobro real'), 'Pago claramente rotulado como simulado.');
-$check($gateway->getPlugin() instanceof \Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\Manual, 'Implementación basada en el pago manual nativo de Commerce.');
+$manual_demo = PaymentGateway::load('pago_simulado');
+$checkout_pro = PaymentGateway::load('mercado_pago_test');
+if ($checkout_pro && $checkout_pro->status() && getenv('BALTO_MERCADO_PAGO_TEST_TOKEN') && getenv('BALTO_MERCADO_PAGO_TEST_BUYER_ID')) {
+  $check($checkout_pro->getPluginId() === 'balto_mercado_pago_test' && $checkout_pro->getPlugin()->getMode() === 'test', 'Checkout Pro habilitado en modo prueba.');
+  $check(!$manual_demo || !$manual_demo->status(), 'Una sola opción de pago simulado visible.');
+}
+else {
+  $check($manual_demo && $manual_demo->getPluginId() === 'vet_simulated_manual', 'Pasarela manual de demo instalada.');
+  $check(str_contains($manual_demo->label(), 'No se realiza ningún cobro real'), 'Pago manual de demo claramente rotulado.');
+}
 $check(CheckoutFlow::load('default')->getPluginId() === 'vet_checkout', 'Flujo de compra BALTO configurado.');
 $check(!\Drupal::config('commerce_order.commerce_order_type.default')->get('sendReceipt'), 'Recibos de correo desactivados en la demo sin SMTP.');
 $price = BaseFieldOverride::load('commerce_product_variation.vet_variation.price');

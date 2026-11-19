@@ -74,7 +74,13 @@ final class OrdersController extends ControllerBase {
         return new JsonResponse(['error' => 'payment_needs_review'], 409);
       }
 
-      $gateway->receivePayment($payment);
+      $request->attributes->set('_balto_telegram_confirmed_payment', (string) $payment->id());
+      try {
+        $gateway->receivePayment($payment);
+      }
+      finally {
+        $request->attributes->remove('_balto_telegram_confirmed_payment');
+      }
       return new JsonResponse($result + ['status' => 'confirmed']);
     }
     finally {

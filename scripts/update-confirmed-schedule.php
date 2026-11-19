@@ -10,6 +10,10 @@ if (!\Drupal::state()->get('balto.schedule.confirmed.v2')) {
 }
 
 $config = \Drupal::configFactory()->getEditable('vet_api.business');
-if ($config->get('consultation_schedule') === 'Lunes a sábado de 09:00 a 19:00') {
-  $config->set('consultation_schedule', 'Lunes a sábado de 9:00 a. m. a 7:00 p. m.')->save();
+if (in_array($config->get('consultation_schedule'), [
+  'Lunes a sábado de 09:00 a 19:00',
+  'De 9:00 a. m. a 7:00 p. m. Días de atención por confirmar.',
+  'De 9:00 a. m. a 7:00 p. m. Días de atención por confirmar',
+], TRUE)) {
+  $config->set('consultation_schedule', 'Lunes a sábado de 9:00 a. m. a 7:00 p. m.')->set('schedule_is_example', FALSE)->save();
 }

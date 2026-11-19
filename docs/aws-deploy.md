@@ -357,3 +357,28 @@ Caddy obtuvo el certificado público y redirige HTTP a HTTPS. Se comprobaron la 
 El nombre apunta a la Elastic IP 3.211.103.160. No liberes esa IP si necesitas conservar el enlace. Una detención normal mantiene la asignación; un reinicio completo o eliminación de recursos del laboratorio puede requerir volver a configurar el despliegue.
 
 ![BALTO con nombre gratuito y HTTPS](capturas/balto-dominio-https.png)
+
+
+### Mercado Pago Checkout Pro de prueba
+
+Configura `BALTO_MERCADO_PAGO_TEST_TOKEN` con el token del vendedor de prueba y
+`BALTO_MERCADO_PAGO_TEST_BUYER_ID` con el ID del comprador de prueba. Mantén estos
+valores en el `.env` privado de EC2. Drupal habilita **Tarjeta (simulado)** cuando
+dispone de ambas cuentas. Completa la compra con la tarjeta de prueba y vuelve
+a BALTO para que Drupal verifique la operación.
+
+Si se cerró el navegador antes de regresar, busca el ID interno del pedido y
+recupera el pago de prueba aprobado con:
+
+```bash
+sudo docker compose exec -T drupal vendor/bin/drush php:script /opt/balto/scripts/reconcile-mercado-pago-test.php ID_INTERNO
+```
+
+El comando comprueba la referencia, el importe, la moneda y ambas cuentas
+antes de registrar el pago. Se puede volver a ejecutar para verificar el mismo
+pedido. Esta recuperación es manual y está limitada al ambiente de pruebas.
+
+Para publicar el webhook de Telegram en EC2, configura
+`BALTO_TELEGRAM_WEBHOOK_SECRET` con 64 caracteres hexadecimales aleatorios y
+registra ese mismo secreto en Telegram para los tipos de evento `message` y
+`callback_query`. Caddy verifica ese secreto antes de reenviar la petición a n8n.

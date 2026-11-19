@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\balto_payments\PluginForm;
 
-use Drupal\balto_payments\Plugin\Commerce\PaymentGateway\MercadoPagoTest;
+use Drupal\balto_payments\Service\MercadoPagoClient;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -18,15 +18,16 @@ final class MercadoPagoTestForm extends PaymentOffsiteForm {
     if (!$total || $total->getCurrencyCode() !== 'PEN') {
       throw new PaymentGatewayException('El pago de prueba requiere un total en soles.');
     }
-    MercadoPagoTest::testSellerId();
-    $preference = MercadoPagoTest::api('POST', '/checkout/preferences', [
+    $client = \Drupal::service('balto_payments.mercado_pago');
+    $client->testSellerId();
+    $preference = $client->api('POST', '/checkout/preferences', [
       'items' => [[
         'title' => 'BALTO · Pedido de prueba',
         'quantity' => 1,
         'currency_id' => 'PEN',
         'unit_price' => (float) $total->getNumber(),
       ]],
-      'external_reference' => MercadoPagoTest::reference($order),
+      'external_reference' => MercadoPagoClient::reference($order),
       'back_urls' => [
         'success' => $form['#return_url'],
         'failure' => $form['#cancel_url'],

@@ -188,7 +188,9 @@ Catálogo: [página completa](docs/capturas/fase-3-catalogo.png), [vista móvil]
 ## Pedidos con pago coordinado y administración
 
 El checkout ofrece **Pagar al recoger**, **Yape coordinado por WhatsApp** y
-**Pago simulado** para la demostración académica. Los dos primeros crean un
+**Tarjeta (simulado)** cuando se configura Mercado Pago Checkout Pro con
+credenciales y cuentas peruanas de prueba. El entorno local puede usar la
+pasarela manual **Pago simulado** configurada en Drupal. Los dos primeros crean un
 pago manual pendiente: la web no transfiere dinero ni confirma capturas.
 El pedido queda pendiente de revisión del establecimiento y muestra un botón de
 WhatsApp con su número, productos y total. El mensaje se abre para que el
@@ -197,13 +199,13 @@ cliente lo revise y envíe; no se envía automáticamente.
 Las unidades se apartan al registrar el pedido. Recibir el pago no descuenta
 stock nuevamente y cancelar el pedido devuelve sus unidades. La tienda debe
 revisar y cancelar solicitudes abandonadas; no hay vencimiento automático.
-El administrador registra la recepción en los pagos del pedido después de
-verificar el efectivo o el movimiento en Yape. No se habilita transferencia
+El administrador registra la recepción del efectivo en Drupal. Para Yape, el
+dueño puede pulsar **Confirmar pago** en Telegram después de verificar el abono. No se habilita transferencia
 hasta contar con los datos bancarios confirmados del negocio.
 
 El catálogo aún es de ejemplo: antes de cualquier pago, BALTO debe confirmar
-el inventario y el importe real. El método simulado permanece identificado y
-solo crea un pago ficticio. Las pruebas técnicas se registran en
+el inventario y el importe real. Mercado Pago verifica en su API el vendedor, el comprador, el importe y la
+referencia antes de completar un pago de prueba. Las pruebas técnicas se registran en
 [verificacion-pagos-manuales.json](docs/verificacion-pagos-manuales.json).
 
 ### Demostración académica y roles

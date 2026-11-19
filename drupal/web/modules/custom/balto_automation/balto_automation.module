@@ -27,6 +27,9 @@ function balto_automation_commerce_payment_update(PaymentInterface $payment): vo
 }
 
 function _balto_automation_payment_paid(PaymentInterface $payment): void {
+  if (\Drupal::request()->attributes->get('_balto_telegram_confirmed_payment') === (string) $payment->id()) {
+    return;
+  }
   $order = $payment->getOrder();
   if ($order) {
     \Drupal::service('balto_automation.notifier')->order($order, 'paid');
