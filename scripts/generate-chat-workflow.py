@@ -10,7 +10,7 @@ node('Recibir chat', 'webhook', {'httpMethod': 'POST', 'path': 'chat', 'response
 node('Detectar intención', 'code', {'jsCode': (ROOT/'n8n/code/detect.js').read_text()}, 2)
 # Gemini interpreta la pregunta; Drupal conserva la autoridad sobre los datos.
 node('Preparar Gemini', 'code', {'jsCode': 'return [{json: {...$input.first().json, geminiRequest: ' + (ROOT/'n8n/code/gemini-request.js').read_text().strip() + '}}];'}, 2)
-node('Usar Gemini', 'if', {'conditions': {'options': {'caseSensitive': True, 'typeValidation': 'strict', 'version': 2}, 'conditions': [{'id': 'valid-message', 'leftValue': '={{ $json.status === 200 }}', 'rightValue': True, 'operator': {'type': 'boolean', 'operation': 'true', 'singleValue': True}}], 'combinator': 'and'}, 'options': {}}, 2.2)
+node('Usar Gemini', 'if', {'conditions': {'options': {'caseSensitive': True, 'typeValidation': 'strict', 'version': 2}, 'conditions': [{'id': 'valid-message', 'leftValue': '={{ $json.status === 200 && !$json.followUp }}', 'rightValue': True, 'operator': {'type': 'boolean', 'operation': 'true', 'singleValue': True}}], 'combinator': 'and'}, 'options': {}}, 2.2)
 node('Interpretar con Gemini', 'httpRequest', {
     'method': 'POST', 'url': 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',
     'authentication': 'genericCredentialType', 'genericAuthType': 'httpHeaderAuth',

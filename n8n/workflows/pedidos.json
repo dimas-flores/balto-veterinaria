@@ -45,7 +45,7 @@
         300
       ],
       "parameters": {
-        "jsCode": "const o = $input.first().json.body || {};\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst items = Array.isArray(o.items) ? o.items.slice(0, 20) : [];\nconst lines = items.map(i => `• ${esc(i.quantity)} × ${esc(i.title)}`).join('\\n');\nconst title = o.event === 'paid' ? '💰 <b>Pago confirmado' : '🛒 <b>Pedido nuevo';\nconst text = `${title} #${esc(o.order_number)}</b>\\n\\n${lines}\\n\\n<b>Total:</b> ${esc(o.currency)} ${esc(o.total)}\\n<b>Pago:</b> ${esc(o.payment_method) || 'sin definir'}\\n<b>Cliente:</b> ${esc(o.email) || 'sin correo'}`;\nreturn [{ json: { text } }];"
+        "jsCode": "const o = $input.first().json.body || {};\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst items = Array.isArray(o.items) ? o.items.slice(0, 20) : [];\nconst lines = items.map(i => `• ${esc(i.quantity)} × ${esc(i.title)}`).join('\\n');\nconst title = o.event === 'paid' ? '💰 <b>Pago confirmado' : '🛒 <b>Pedido nuevo';\nconst text = `${title} #${esc(o.order_number)}</b>\\n\\n${lines}\\n\\n<b>Total:</b> ${esc(o.currency)} ${esc(o.total)}\\n<b>Pago:</b> ${esc(o.payment_method) || 'sin definir'}\\n<b>Cliente:</b> ${esc(o.email) || 'sin correo'}`;\nconst canConfirm = '__TELEGRAM_PAYMENT_BUTTON__' === 'enabled'\n  && o.event === 'placed' && o.payment_gateway === 'yape_coordinado'\n  && Number.isSafeInteger(o.order_id) && o.order_id > 0;\nreturn [{ json: { text: canConfirm ? text + '\\n\\n⏳ Pendiente de pago' : text, canConfirm, orderId: o.order_id } }];"
       }
     },
     {
@@ -54,8 +54,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        520,
-        300
+        780,
+        380
       ],
       "parameters": {
         "resource": "message",
@@ -180,6 +180,80 @@
           "name": "BALTO Telegram"
         }
       }
+    },
+    {
+      "id": "¿Pago coordinado?",
+      "name": "¿Pago coordinado?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check",
+              "leftValue": "={{ $json.canConfirm }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Avisar con botón de pago",
+      "name": "Avisar con botón de pago",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        780,
+        200
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "__TELEGRAM_CHAT_ID__",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Confirmar pago",
+                    "additionalFields": {
+                      "callback_data": "={{ \"confirmar_pago:\" + $json.orderId }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "baltoTelegram",
+          "name": "BALTO Telegram"
+        }
+      }
     }
   ],
   "connections": {
@@ -198,7 +272,7 @@
       "main": [
         [
           {
-            "node": "Avisar por Telegram",
+            "node": "¿Pago coordinado?",
             "type": "main",
             "index": 0
           }
@@ -232,6 +306,24 @@
         [
           {
             "node": "Avisar stock bajo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Pago coordinado?": {
+      "main": [
+        [
+          {
+            "node": "Avisar con botón de pago",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Avisar por Telegram",
             "type": "main",
             "index": 0
           }

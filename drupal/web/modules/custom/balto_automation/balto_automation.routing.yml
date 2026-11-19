@@ -7,3 +7,14 @@ balto_automation.api_orders:
   methods: [GET]
   options:
     no_cache: TRUE
+
+balto_automation.confirm_payment:
+  path: '/api/balto/pedidos/{order_id}/confirmar-pago'
+  defaults:
+    _controller: '\Drupal\balto_automation\Controller\OrdersController::confirmPayment'
+  requirements:
+    _access: 'TRUE'
+    order_id: '[1-9][0-9]*'
+  methods: [POST]
+  options:
+    no_cache: TRUE

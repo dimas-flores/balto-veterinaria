@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\balto_automation\Controller;
 
+use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\ManualPaymentGatewayInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,9 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 final class OrdersController extends ControllerBase {
 
   public function latest(Request $request): JsonResponse {
-    $secret = (string) getenv('BALTO_N8N_SECRET');
-    $given = (string) $request->headers->get('X-Balto-Secret', '');
-    if ($secret === '' || !hash_equals($secret, $given)) {
+    if (!$this->hasSharedSecret($request)) {
       return new JsonResponse(['error' => 'unauthorized'], 403);
     }
     $storage = $this->entityTypeManager()->getStorage('commerce_order');
@@ -36,6 +35,56 @@ final class OrdersController extends ControllerBase {
     $response = new JsonResponse(['data' => $rows]);
     $response->headers->set('Cache-Control', 'no-store');
     return $response;
+  }
+
+  public function confirmPayment(Request $request, string $order_id): JsonResponse {
+    if (!$this->hasSharedSecret($request)) {
+      return new JsonResponse(['error' => 'unauthorized'], 403);
+    }
+
+    $lock = \Drupal::lock();
+    $lock_name = 'balto_automation.confirm_payment.' . $order_id;
+    if (!$lock->acquire($lock_name)) {
+      return new JsonResponse(['error' => 'busy'], 409);
+    }
+
+    try {
+      $order = $this->entityTypeManager()->getStorage('commerce_order')->loadUnchanged($order_id);
+      if (!$order || !$order->getPlacedTime() || in_array($order->getState()->getId(), ['draft', 'canceled'], TRUE)
+          || $order->get('payment_gateway')->target_id !== 'yape_coordinado') {
+        return new JsonResponse(['error' => 'ineligible'], 409);
+      }
+
+      $result = ['order_number' => (string) ($order->getOrderNumber() ?: $order->id())];
+      if ($order->isPaid()) {
+        return new JsonResponse($result + ['status' => 'already_paid']);
+      }
+
+      $pending = $this->entityTypeManager()->getStorage('commerce_payment')->loadByProperties([
+        'order_id' => $order_id,
+        'payment_gateway' => 'yape_coordinado',
+        'state' => 'pending',
+      ]);
+      $payment = count($pending) === 1 ? reset($pending) : NULL;
+      $gateway = $payment?->getPaymentGateway()?->getPlugin();
+      $balance = $order->getBalance();
+      if (!$gateway instanceof ManualPaymentGatewayInterface || !$balance
+          || $payment->getAmount()->getCurrencyCode() !== $balance->getCurrencyCode()
+          || !$payment->getAmount()->equals($balance)) {
+        return new JsonResponse(['error' => 'payment_needs_review'], 409);
+      }
+
+      $gateway->receivePayment($payment);
+      return new JsonResponse($result + ['status' => 'confirmed']);
+    }
+    finally {
+      $lock->release($lock_name);
+    }
+  }
+
+  private function hasSharedSecret(Request $request): bool {
+    $secret = (string) getenv('BALTO_N8N_SECRET');
+    return $secret !== '' && hash_equals($secret, (string) $request->headers->get('X-Balto-Secret', ''));
   }
 
 }

@@ -11,8 +11,19 @@
         const input = widget.querySelector('input');
         const typing = widget.querySelector('.chat-typing');
         const key = 'balto-chat-session-v1';
-        let history = [], busy = false;
+        const productKey = key + '-product';
+        const validSku = value => typeof value === 'string' && /^[A-Z0-9][A-Z0-9-]{0,39}$/i.test(value);
+        let history = [], busy = false, productSku = null;
+        const rememberProduct = (value) => {
+          productSku = validSku(value) ? value : null;
+          try {
+            if (productSku) sessionStorage.setItem(productKey, productSku);
+            else sessionStorage.removeItem(productKey);
+          } catch (_) { /* La memoria también funciona en la página actual. */ }
+        };
         try {
+          const savedSku = sessionStorage.getItem(productKey);
+          if (validSku(savedSku)) productSku = savedSku;
           const stored = JSON.parse(sessionStorage.getItem(key) || '[]');
           if (Array.isArray(stored)) history = stored.filter(m => m && ['user', 'assistant'].includes(m.role) && typeof m.text === 'string' && m.text.length <= 10000).slice(-40);
         } catch (_) { /* Navegar sin almacenamiento no impide usar el chat. */ }
@@ -82,9 +93,10 @@
           try {
             const url = new URL(drupalSettings.baltoChat?.webhookUrl);
             if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Configuración no válida');
-            const response = await fetch(url.href, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }), credentials: 'omit', signal: controller.signal });
+            const response = await fetch(url.href, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message, productSku }), credentials: 'omit', signal: controller.signal });
             const data = await response.json();
             if (!response.ok || typeof data.reply !== 'string' || data.reply.length > 10000) throw new Error('Chat no disponible');
+            if (Object.hasOwn(data, 'productSku')) rememberProduct(data.productSku);
             add('assistant', data.reply, data.links);
           } catch (_) {
             add('assistant', 'No pude conectar con el asistente. Inténtalo de nuevo en unos minutos. Puedes usar el enlace de WhatsApp de la página.');
@@ -99,6 +111,7 @@
         widget.querySelectorAll('.chat-prompts button').forEach(button => button.addEventListener('click', () => send(button.textContent)));
         widget.querySelector('.chat-clear').addEventListener('click', () => {
           if (busy) return;
+          rememberProduct(null);
           history = []; log.replaceChildren(); save(); welcome(); input.focus();
         });
       });

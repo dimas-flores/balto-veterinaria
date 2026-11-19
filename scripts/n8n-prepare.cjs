@@ -60,11 +60,14 @@ if (telegramChat && !/^-?\d+$/.test(telegramChat)) throw new Error('TELEGRAM_CHA
 const stockThreshold = Number.parseInt(process.env.STOCK_ALERT_THRESHOLD || '5', 10);
 if (!Number.isInteger(stockThreshold) || stockThreshold < 0 || stockThreshold > 100000) throw new Error('STOCK_ALERT_THRESHOLD inválido');
 const ordersEnabled = orderSecret.length >= 32 && !!telegramToken && !!telegramChat;
-const fill = f => fs.readFileSync(f, 'utf8').replaceAll('__TELEGRAM_CHAT_ID__', telegramChat || '0').replaceAll('__STOCK_THRESHOLD__', String(stockThreshold));
-const orders = fill('/workflows/pedidos.json');
-const bot = fill('/workflows/bot.json');
 // El Telegram Trigger solo funciona con una URL pública HTTPS.
 const botEnabled = ordersEnabled && /^https:\/\//.test(process.env.WEBHOOK_URL || '');
+const fill = f => fs.readFileSync(f, 'utf8')
+  .replaceAll('__TELEGRAM_CHAT_ID__', telegramChat || '0')
+  .replaceAll('__STOCK_THRESHOLD__', String(stockThreshold))
+  .replaceAll('__TELEGRAM_PAYMENT_BUTTON__', botEnabled ? 'enabled' : 'disabled');
+const orders = fill('/workflows/pedidos.json');
+const bot = fill('/workflows/bot.json');
 fs.writeFileSync('/tmp/balto-pedidos.json', orders, { mode: 0o600 });
 fs.writeFileSync('/tmp/balto-bot.json', bot, { mode: 0o600 });
 fs.writeFileSync('/tmp/balto-orders-enabled', ordersEnabled ? '1' : '0', { mode: 0o600 });

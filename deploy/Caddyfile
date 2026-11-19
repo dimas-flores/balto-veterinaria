@@ -40,6 +40,11 @@
 		reverse_proxy n8n:5678
 	}
 
+	@confirmar_pago path /api/balto/pedidos/*/confirmar-pago
+	handle @confirmar_pago {
+		respond 404
+	}
+
 	handle {
 		reverse_proxy drupal:80
 	}

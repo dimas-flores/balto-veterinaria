@@ -22,7 +22,8 @@
       ],
       "parameters": {
         "updates": [
-          "message"
+          "message",
+          "callback_query"
         ],
         "additionalFields": {}
       },
@@ -54,7 +55,7 @@
           "conditions": [
             {
               "id": "m1",
-              "leftValue": "={{ String($json.message?.chat?.id ?? '') }}",
+              "leftValue": "={{ String($json.callback_query\n  ? ($json.callback_query.message?.chat?.type === 'private'\n    && $json.callback_query.from?.id === $json.callback_query.message?.chat?.id\n    ? $json.callback_query.from.id : '')\n  : ($json.message?.chat?.id ?? '')) }}",
               "rightValue": "__TELEGRAM_CHAT_ID__",
               "operator": {
                 "type": "string",
@@ -293,6 +294,153 @@
           "name": "BALTO Telegram"
         }
       }
+    },
+    {
+      "id": "¿Confirmación de pago?",
+      "name": "¿Confirmación de pago?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        80
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check",
+              "leftValue": "={{ /^confirmar_pago:[1-9][0-9]{0,15}$/.test($json.callback_query?.data ?? '') }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Registrar pago en Drupal",
+      "name": "Registrar pago en Drupal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        710,
+        -140
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'http://drupal/api/balto/pedidos/' + $json.callback_query.data.split(':')[1] + '/confirmar-pago' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 8000,
+          "response": {
+            "response": {
+              "responseFormat": "json",
+              "neverError": true
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "baltoPedidoSecret",
+          "name": "BALTO secreto de pedidos"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Responder al botón",
+      "name": "Responder al botón",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        950,
+        -140
+      ],
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $('Mensaje de Telegram').first().json.callback_query.id }}",
+        "additionalFields": {
+          "text": "={{ ['confirmed', 'already_paid'].includes($('Registrar pago en Drupal').first().json.status) ? 'Pago confirmado en la tienda.' : 'No se pudo confirmar. Revisa el pedido o vuelve a intentar.' }}"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "baltoTelegram",
+          "name": "BALTO Telegram"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "¿Guardado en Drupal?",
+      "name": "¿Guardado en Drupal?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1180,
+        -140
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check",
+              "leftValue": "={{ ['confirmed', 'already_paid'].includes($('Registrar pago en Drupal').first().json.status) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Actualizar aviso de pedido",
+      "name": "Actualizar aviso de pedido",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1420,
+        -140
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "editMessageText",
+        "messageType": "message",
+        "chatId": "__TELEGRAM_CHAT_ID__",
+        "messageId": "={{ String($('Mensaje de Telegram').first().json.callback_query.message.message_id) }}",
+        "text": "={{ ($('Mensaje de Telegram').first().json.callback_query.message.text ?? '').split('\\n\\n⏳ Pendiente de pago')[0] + '\\n\\n✅ Pago confirmado' }}",
+        "replyMarkup": "none",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "baltoTelegram",
+          "name": "BALTO Telegram"
+        }
+      }
     }
   ],
   "connections": {
@@ -311,7 +459,7 @@
       "main": [
         [
           {
-            "node": "Interpretar",
+            "node": "¿Confirmación de pago?",
             "type": "main",
             "index": 0
           }
@@ -408,6 +556,58 @@
             "index": 0
           }
         ]
+      ]
+    },
+    "¿Confirmación de pago?": {
+      "main": [
+        [
+          {
+            "node": "Registrar pago en Drupal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Interpretar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar pago en Drupal": {
+      "main": [
+        [
+          {
+            "node": "Responder al botón",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder al botón": {
+      "main": [
+        [
+          {
+            "node": "¿Guardado en Drupal?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Guardado en Drupal?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar aviso de pedido",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
       ]
     }
   }

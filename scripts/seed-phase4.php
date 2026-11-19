@@ -78,8 +78,8 @@ $flow->getPlugin()->setConfiguration([
     'payment_information' => ['step' => 'order_information', 'weight' => 3, 'always_display' => TRUE, 'require_payment_method' => FALSE],
     'review' => ['step' => 'review', 'weight' => 4],
     'payment_process' => ['step' => 'payment', 'weight' => 5, 'capture' => TRUE],
-    'completion_message' => ['step' => 'complete', 'weight' => 6, 'display_pane_summaries' => TRUE,
-      'message' => ['value' => "¡Pedido de demostración registrado!\nTu número de pedido es [commerce_order:order_number].\nPago simulado – No se realiza ningún cobro real.\nCoordina cualquier consulta real o retiro en tienda por WhatsApp.", 'format' => 'plain_text']],
+    'completion_message' => ['step' => '_disabled'],
+    'vet_order_confirmation' => ['step' => 'complete', 'weight' => 6],
     'order_summary' => ['step' => '_sidebar', 'weight' => 7, 'view' => 'commerce_checkout_order_summary'],
   ],
 ]);

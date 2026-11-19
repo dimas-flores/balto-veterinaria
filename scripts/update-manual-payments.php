@@ -28,16 +28,22 @@ foreach ([
     ])->save();
   }
 }
-if ($configured) {
-  return;
-}
-
 $flow = CheckoutFlow::load('default');
-$configuration = $flow->getPlugin()->getConfiguration();
-$configuration['panes']['completion_message']['step'] = '_disabled';
-$configuration['panes']['vet_order_confirmation'] = ['step' => 'complete', 'weight' => 6];
-$flow->set('label', 'Pedidos BALTO: retiro y pago coordinado');
-$flow->getPlugin()->setConfiguration($configuration);
-$flow->save();
-\Drupal::state()->set('balto.manual_payments.v3', TRUE);
-echo "Pagos al recoger y Yape coordinado configurados.\n";
+$plugin = $flow->getPlugin();
+$configuration = $plugin->getConfiguration();
+if (!$configured
+    || ($configuration['panes']['completion_message']['step'] ?? NULL) !== '_disabled'
+    || ($configuration['panes']['vet_order_confirmation']['step'] ?? NULL) !== 'complete') {
+  $configuration['panes']['completion_message']['step'] = '_disabled';
+  $configuration['panes']['vet_order_confirmation']['step'] = 'complete';
+  $configuration['panes']['vet_order_confirmation']['weight'] ??= 6;
+  if (!$configured) {
+    $flow->set('label', 'Pedidos BALTO: retiro y pago coordinado');
+  }
+  $plugin->setConfiguration($configuration);
+  $flow->save();
+}
+if (!$configured) {
+  \Drupal::state()->set('balto.manual_payments.v3', TRUE);
+  echo "Pagos al recoger y Yape coordinado configurados.\n";
+}

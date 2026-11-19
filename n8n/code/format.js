@@ -8,6 +8,7 @@ const publicBase = 'http://localhost:8080'; // El instalador adapta esta URL.
 let status = context.status;
 let reply = '';
 let links = [];
+let productContext = {};
 const contact = business?.whatsapp ? `Puedes escribirnos al WhatsApp ${business.whatsapp} para consultas o citas.` : '';
 const cleanUrl = (url, allowedExternal = false) => {
   if (typeof url !== 'string') return '';
@@ -43,8 +44,11 @@ else if (context.intent === 'services') reply = `Nuestros servicios:\n${response
 else if (context.intent === 'payments') reply = `Medios de pago en el local: ${business.payment_methods || 'Consulta los medios disponibles por WhatsApp'}.${business.yape_number ? '\nYape del establecimiento: ' + business.yape_number + '.' : ''}\nEl WhatsApp de atención es ${business.whatsapp}.\nEn la web puedes solicitar retiro con pago al recoger o Yape coordinado. Confirma disponibilidad y total con BALTO antes de pagar. La opción Pago simulado es solo académica y no genera cobros.`;
 else if (context.intent === 'service_prices') reply = `${business.service_pricing_note || 'Solicita una cotización de servicios por WhatsApp.'}\n${contact}`;
 else if (context.intent === 'categories') reply = `Categorías de la tienda:\n${response.data.map(c => '• ' + c.name).join('\n')}\nDime el nombre de una categoría o de un producto para consultar precios y existencias.`;
+else if (context.intent === 'product_clarification') reply = '¿De qué producto quieres saber el precio o la disponibilidad? Escríbeme su nombre o código.';
 else if (context.intent === 'product' || context.intent === 'category') {
   const products = response.data;
+  productContext = { productSku: context.intent === 'product' && products.length === 1 &&
+    (response.meta?.total ?? products.length) === 1 ? products[0].sku : null };
   if (!products.length) reply = `No encontré productos que coincidan. Puedes consultar por nombre o SKU, o preguntar por las categorías. ${contact}`;
   else {
     reply = products.slice(0, 5).map(p => p.available ? `• ${p.name} cuesta ${p.price} y hay ${p.stock} ${p.stock === 1 ? 'unidad disponible' : 'unidades disponibles'}.` : `• ${p.name}: ese producto está agotado por ahora. Su precio de referencia es ${p.price}.`).join('\n');
@@ -58,4 +62,4 @@ if (business && status === 200) {
   const url = cleanUrl(business.appointment_url || business.whatsapp_url, true);
   if (url) links.push({ label: ['overview', 'parasite_care'].includes(context.intent) ? 'Separar cita por WhatsApp' : 'Consultar por WhatsApp', url });
 }
-return [{ json: { status, body: { reply, intent: context.intent, engine: context.engine, links } } }];
+return [{ json: { status, body: { reply, intent: context.intent, engine: context.engine, links, ...productContext } } }];

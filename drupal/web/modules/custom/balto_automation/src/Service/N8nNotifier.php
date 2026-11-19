@@ -36,6 +36,7 @@ final class N8nNotifier {
           'email' => (string) $order->getEmail(),
           'total' => $total ? $total->getNumber() : '0',
           'currency' => $total ? $total->getCurrencyCode() : 'PEN',
+          'payment_gateway' => $order->get('payment_gateway')->target_id,
           'payment_method' => $order->get('payment_gateway')->entity?->label() ?? '',
           'items' => $items,
         ],
