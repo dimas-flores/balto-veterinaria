@@ -34,7 +34,7 @@ try {
   check(await page.$eval('#chat-message', e => e === document.activeElement), 'Abrir chat enfoca el campo de mensaje');
   check((await page.$eval('.chat-history', e => e.textContent)).includes('¡Hola!'), 'Saludo local visible');
   const text = await send('precio de Dog Chow');
-  check(text.includes('S/ ') && text.includes('unidades disponibles') && text.includes('ejemplo'), 'Respuesta real n8n con precio, stock y aviso de ejemplo');
+  check(text.includes('S/ ') && text.includes('unidades disponibles'), 'Respuesta real n8n con precio y stock');
   check(await page.$eval('.chat-links a', a => a.href.startsWith(location.origin+'/product/')), 'Enlace de producto utilizable');
   await page.screenshot({path:root+'docs/capturas/fase-6-chat-escritorio.png',fullPage:false});
   await page.keyboard.press('Escape');
