@@ -8,6 +8,7 @@ use Drupal\balto_payments\Service\MercadoPagoClient;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\vet_api\Response\OffsitePaymentRedirect;
 
 final class MercadoPagoTestForm extends PaymentOffsiteForm {
 
@@ -33,7 +34,6 @@ final class MercadoPagoTestForm extends PaymentOffsiteForm {
         'failure' => $form['#cancel_url'],
         'pending' => $form['#return_url'],
       ],
-      'auto_return' => 'approved',
       'payment_methods' => ['excluded_payment_types' => [['id' => 'ticket'], ['id' => 'bank_transfer'], ['id' => 'atm']]],
     ]);
     $url = (string) ($preference['init_point'] ?? '');
@@ -41,7 +41,7 @@ final class MercadoPagoTestForm extends PaymentOffsiteForm {
         || parse_url($url, PHP_URL_HOST) !== 'www.mercadopago.com.pe') {
       throw new PaymentGatewayException('Mercado Pago no devolvió un enlace de pruebas válido.');
     }
-    return $this->buildRedirectForm($form, $form_state, $url, []);
+    throw new OffsitePaymentRedirect($url);
   }
 
 }

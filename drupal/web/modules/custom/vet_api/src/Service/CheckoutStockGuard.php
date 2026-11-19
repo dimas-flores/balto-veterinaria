@@ -11,6 +11,7 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Url;
 use Drupal\commerce\Response\NeedsRedirectException;
 use Drupal\commerce_order\Entity\OrderInterface;
+use Drupal\vet_api\Response\OffsitePaymentRedirect;
 
 /** Serializa la confirmación de pedidos que compiten por las mismas unidades. */
 final class CheckoutStockGuard {
@@ -61,6 +62,10 @@ final class CheckoutStockGuard {
         $transaction->commitOrRelease();
         return $result;
       }
+      catch (OffsitePaymentRedirect $exception) {
+        $transaction->commitOrRelease();
+        throw $exception;
+      }
       catch (NeedsRedirectException $exception) {
         // La redirección normal ocurre después de guardar pago y pedido.
         // Si sigue en borrador, es una salida de error: deshacer el pago local.
@@ -78,7 +83,7 @@ final class CheckoutStockGuard {
       }
     }
     catch (NeedsRedirectException $exception) {
-      if ($acquired && $order->getState()->getId() === 'draft') {
+      if (!$exception instanceof OffsitePaymentRedirect && $acquired && $order->getState()->getId() === 'draft') {
         $order->unlock();
         $order->set('checkout_step', 'order_information');
         $order->save();
