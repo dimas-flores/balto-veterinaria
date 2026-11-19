@@ -35,9 +35,15 @@
 	@telegram_bot {
 		path /webhook/balto-bot-webhook/webhook
 		method POST
+		expression `size('{$BALTO_TELEGRAM_WEBHOOK_SECRET:}') == 64 && header({'X-Telegram-Bot-Api-Secret-Token': '{$BALTO_TELEGRAM_WEBHOOK_SECRET:}'})`
 	}
 	handle @telegram_bot {
-		reverse_proxy n8n:5678
+		reverse_proxy n8n:5678 {
+			header_up X-Telegram-Bot-Api-Secret-Token baltoBot_MensajedeTelegram
+		}
+	}
+	handle /webhook/balto-bot-webhook/webhook {
+		respond 403
 	}
 
 	@confirmar_pago path /api/balto/pedidos/*/confirmar-pago

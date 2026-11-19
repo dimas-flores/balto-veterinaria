@@ -17,6 +17,7 @@ services:
     image: caddy:2.11.9-alpine
     restart: unless-stopped
     environment:
+      BALTO_TELEGRAM_WEBHOOK_SECRET: ${BALTO_TELEGRAM_WEBHOOK_SECRET:-}
       BALTO_SITE_ADDRESS: ${BALTO_SITE_ADDRESS:?Configura el host público con configure-aws-env.py}
     ports:
       - '${AWS_HTTP_PORT:-80}:80'
