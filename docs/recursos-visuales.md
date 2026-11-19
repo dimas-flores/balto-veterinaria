@@ -60,3 +60,7 @@ servicios. La información se aplica una sola vez mediante
 `update-owner-business.php` y luego se administra desde Drupal. Los medios de
 pago del local son tarjeta, Yape, transferencia y efectivo; Yape 982183032 es
 independiente del WhatsApp de atención 986866036. La demo conserva pago simulado.
+
+## Fotografía de la tienda en "Para tu gato"
+
+`images/para-gato-balto.jpg` es una foto real publicada por BALTO en su Facebook: un gatito negro con chompa sobre el mostrador de la tienda. La aportó el usuario el 19 de noviembre de 2026 junto con otras publicaciones de la veterinaria. Se recortó a 900 × 700 px sin retoques. Reemplaza a la foto de banco anterior (`para-gato.jpg`, que se conserva en el repositorio).

@@ -1,5 +1,5 @@
 global:
-  version: 2026.11.19.6
+  version: 2026.11.19.16
   css:
     theme:
       css/fonts.css: {}
@@ -7,10 +7,10 @@ global:
       css/storefront.css: {}
       css/catalog-trial.css: {}
       css/legibility.css: {}
+      css/home-ux.css: {}
   js:
     js/site.js: {}
     js/catalog.js: {}
-    js/carousel.js: {}
     js/chat.js: {}
     js/quantity.js: {}
     js/cart-feedback.js: {}

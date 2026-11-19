@@ -28,6 +28,15 @@ vet_api.business:
     whatsapp_url:
       type: uri
       label: 'Enlace de WhatsApp'
+    phone_secondary:
+      type: string
+      label: 'Segundo teléfono o vacío'
+    instagram_user:
+      type: string
+      label: 'Usuario de Instagram sin @ o vacío'
+    tiktok_name:
+      type: string
+      label: 'Nombre en TikTok o vacío'
     facebook_name:
       type: string
       label: 'Nombre de Facebook'

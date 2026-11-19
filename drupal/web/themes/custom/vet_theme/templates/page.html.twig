@@ -1,6 +1,6 @@
 {% set root = path('<front>') %}
 <div class="site-shell">
-  <div class="utility-bar">
+  <div class="utility-bar" role="region" aria-label="Contacto y ubicación">
     <div class="container utility-inner">
       <span class="utility-place">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'pin'} only %} {{ business.city }}</span>
       <a href="{{ root }}#horarios"><span class="status-dot"></span> Hospitalización {{ business.hospitalization }}</a>
@@ -23,11 +23,11 @@
         <a href="{{ root }}#historias">Historias</a>
         <a href="{{ root }}#ubicacion">Encuéntranos</a>
         <a href="{{ path('vet_api.catalog') }}">Tienda {% include '@vet_theme/templates/icon.html.twig' with {icon: 'arrow-up-right'} only %}</a>
-        <a class="mobile-contact" href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">Separa tu cita por WhatsApp</a>
+        <a class="mobile-contact" href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">Separar cita por WhatsApp</a>
       </nav>
       <div class="header-actions">
         <a class="cart-link" href="{{ path('commerce_cart.page') }}" aria-label="Ver carrito">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'bag'} only %}<span>Carrito</span>{{ cart_count }}</a>
-        <a class="button button-small header-appointment" href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">Contáctanos {% include '@vet_theme/templates/icon.html.twig' with {icon: 'arrow-up-right'} only %}</a>
+        <a class="button button-small header-appointment" href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">Separar cita {% include '@vet_theme/templates/icon.html.twig' with {icon: 'arrow-up-right'} only %}</a>
       </div>
     </div>
   </header>
@@ -38,14 +38,15 @@
   <footer class="site-footer">
     <div class="container footer-top">
       <div class="footer-brand"><a class="brand{% if vet_real_logo %} brand-real{% endif %}" href="{{ root }}"><span class="brand-symbol{% if vet_logo_crop %} brand-symbol-wolf{% endif %}"><img src="{{ vet_logo }}" width="48" height="52" alt="" /></span><span><strong>BALTO<span class="brand-dot">.</span></strong><small>VETERINARIA</small></span></a><p>{{ business.slogan }}.<br />Cerca de ti, en Juliaca.</p></div>
-      <div><h2>Hablemos</h2><a href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">WhatsApp: {{ business.whatsapp }} ↗</a><a href="{{ business.phone_url }}">Llámanos</a>{% if business.email %}<a href="mailto:{{ business.email }}">{{ business.email }}</a>{% endif %}</div>
+      <div><h2>Hablemos</h2><a href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">WhatsApp: {{ business.whatsapp }} ↗</a><a href="{{ business.phone_url }}">Llámanos: {{ business.whatsapp }}</a>{% if business.phone_secondary_url %}<a href="{{ business.phone_secondary_url }}">También: {{ business.phone_secondary }}</a>{% endif %}{% if business.email %}<a href="mailto:{{ business.email }}">{{ business.email }}</a>{% endif %}</div>
       <div><h2>Visítanos</h2>{% for address in business.addresses %}<p>{{ address }}</p>{% endfor %}</div>
-      <div><h2>Sigamos cerca</h2>{% if business.facebook_url %}<a href="{{ business.facebook_url }}" target="_blank" rel="noopener noreferrer">{{ business.facebook_name }} en Facebook ↗</a>{% else %}<p>Encuéntranos en Facebook como<br /><strong>{{ business.facebook_name }}</strong>.</p>{% endif %}<a href="{{ path('user.login') }}">Acceso a mi cuenta ↗</a></div>
+      <div><h2>Sigamos cerca</h2>{% if business.facebook_url %}<a href="{{ business.facebook_url }}" target="_blank" rel="noopener noreferrer">{{ business.facebook_name }} en Facebook ↗</a>{% else %}<p>Encuéntranos en Facebook como<br /><strong>{{ business.facebook_name }}</strong>.</p>{% endif %}{% if business.instagram_url %}<a href="{{ business.instagram_url }}" target="_blank" rel="noopener noreferrer">Instagram: @{{ business.instagram_user }} ↗</a>{% endif %}{% if business.tiktok_name %}<p>TikTok: <strong>{{ business.tiktok_name }}</strong></p>{% endif %}<a href="{{ path('user.login') }}">Acceso a mi cuenta ↗</a></div>
     </div>
     <div class="container payment-strip" role="region" aria-label="Medios de pago aceptados">
       <h2>Medios de pago</h2>
       <ul class="payment-strip-list">
-        {% for method in payment_methods %}
+        {# Solo lo que el cliente puede usar hoy; PagoEfectivo aparece solo cuando Culqi esté activo. #}
+        {% for method in payment_methods|filter(method => method.available) %}
           <li class="payment-chip{% if not method.available %} payment-chip-soon{% endif %}">
             {% include '@vet_theme/templates/icon.html.twig' with {icon: method.icon} only %}
             <span class="payment-chip-text">
@@ -62,7 +63,7 @@
 </div>
 {% if show_action_bar %}
 <nav class="mobile-action-bar" aria-label="Contacto rápido">
-  <a class="mobile-action mobile-action-whatsapp" href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'whatsapp'} only %}<span>WhatsApp</span></a>
+  <a class="mobile-action mobile-action-whatsapp" href="{{ business.appointment_url }}" target="_blank" rel="noopener noreferrer">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'whatsapp'} only %}<span>Separar cita</span></a>
   <a class="mobile-action mobile-action-call" href="{{ business.phone_url }}">{% include '@vet_theme/templates/icon.html.twig' with {icon: 'phone'} only %}<span>Llamar</span></a>
 </nav>
 {% endif %}

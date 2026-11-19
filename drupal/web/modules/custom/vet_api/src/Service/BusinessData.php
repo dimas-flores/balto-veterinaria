@@ -20,13 +20,17 @@ final class BusinessData {
     // Lista explícita: nunca se filtran claves privadas ni configuración interna.
     $public = array_intersect_key($data, array_flip([
       'name', 'slogan', 'city', 'currency', 'addresses', 'whatsapp',
-      'whatsapp_url', 'facebook_name', 'facebook_url', 'email',
+      'whatsapp_url', 'phone_secondary', 'instagram_user', 'tiktok_name', 'facebook_name', 'facebook_url', 'email',
       'hospitalization', 'consultation_schedule', 'payment_methods', 'yape_number', 'service_pricing_note', 'schedule_is_example',
       'catalog_is_example', 'about_title', 'about_text',
     ]));
     $public['appointment_url'] = ($public['whatsapp_url'] ?? 'https://wa.me/51986866036')
       . '?text=' . rawurlencode('Hola, BALTO Veterinaria. Quisiera separar una cita para mi mascota.');
     $public['phone_url'] = 'tel:+51' . preg_replace('/\D/', '', $public['whatsapp'] ?? '');
+    $second = preg_replace('/\D/', '', $public['phone_secondary'] ?? '');
+    $public['phone_secondary_url'] = preg_match('/^9\d{8}$/', $second) ? 'tel:+51' . $second : '';
+    $instagram = (string) ($public['instagram_user'] ?? '');
+    $public['instagram_url'] = preg_match('/^[A-Za-z0-9._]{1,30}$/', $instagram) ? 'https://www.instagram.com/' . strtolower($instagram) . '/' : '';
     $public['map_url'] = 'https://maps.google.com/maps?q=' . rawurlencode(($public['addresses'][0] ?? '') . ', Juliaca, Puno, Perú') . '&output=embed';
     $public['maps_link'] = 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode(($public['addresses'][0] ?? '') . ', Juliaca, Puno, Perú');
     // CID identifica la ficha concreta y evita geocodificar una dirección ambigua.

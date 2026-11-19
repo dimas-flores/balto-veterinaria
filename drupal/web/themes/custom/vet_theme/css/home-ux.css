@@ -1,0 +1,280 @@
+/* Portada en celular: todo el primer tramo, incluido el aviso de urgencias,
+   debe caber sobre la barra fija de contacto. */
+@media (max-width: 600px) {
+  .balto-hero .hero-grid {
+    padding-top: 24px;
+    gap: 10px;
+  }
+  .balto-hero .care-badge {
+    margin-top: 10px;
+    padding-block: 11px;
+  }
+  .balto-hero .hero-carousel .hero-grid,
+  .hero-carousel.balto-hero .hero-grid {
+    padding-bottom: 12px;
+  }
+  /* Recorte desde arriba: se conservan las orejas y la cara del gatito. */
+  .balto-hero .hero-image-clinic img {
+    height: 195px;
+    max-height: none;
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+}
+
+/* Identidad de las redes de BALTO: huella amarilla, resaltado y confianza. */
+.balto-hero .hero-visual {
+  position: relative;
+  isolation: isolate;
+}
+.balto-hero .hero-paw {
+  position: absolute;
+  z-index: -1;
+  top: -10%;
+  right: -12%;
+  width: 62%;
+  fill: var(--mustard);
+  transform: rotate(16deg);
+  pointer-events: none;
+}
+.balto-hero h1 em {
+  padding-inline: .04em;
+  background-image: linear-gradient(transparent 62%, color-mix(in srgb, var(--mustard) 80%, transparent) 62%, color-mix(in srgb, var(--mustard) 80%, transparent) 90%, transparent 90%);
+}
+.balto-hero .hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.balto-hero .hero-trust li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 700;
+}
+.balto-hero .hero-trust li::before {
+  content: "✓";
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--mustard);
+  color: var(--green);
+  font-size: 13px;
+}
+/* Historia real flotando sobre la foto: prueba de pacientes atendidos. */
+.balto-hero .hero-story {
+  position: absolute;
+  z-index: 2;
+  /* Sobre la manta, encima del aviso de urgencias: la cara del gatito queda libre. */
+  bottom: 112px;
+  left: -24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 270px;
+  padding: 7px 16px 7px 7px;
+  border-radius: 999px;
+  background: var(--cream);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--green) 18%, transparent);
+  color: var(--green);
+  text-decoration: none;
+}
+.balto-hero .hero-story img {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.balto-hero .hero-story small {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: color-mix(in srgb, var(--green) 70%, var(--cream));
+}
+.balto-hero .hero-story strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.balto-hero .hero-story:hover strong {
+  text-decoration: underline;
+}
+.balto-hero .hero-story:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  /* En celular la fila de confianza bajaría el aviso de urgencias bajo la barra fija. */
+  .balto-hero .hero-trust {
+    display: none;
+  }
+  .balto-hero .hero-paw {
+    top: -6%;
+    right: -6%;
+    width: 46%;
+  }
+  .balto-hero .hero-story {
+    bottom: 92px;
+    left: 10px;
+    max-width: calc(100% - 20px);
+    padding: 5px 12px 5px 5px;
+  }
+  .balto-hero .hero-story img {
+    width: 36px;
+    height: 36px;
+  }
+  .balto-hero .hero-story small {
+    font-size: 11px;
+  }
+  .balto-hero .hero-story strong {
+    font-size: 13px;
+  }
+}
+
+/* Aviso de hospitalización: además de informar, lleva al teléfono. */
+a.care-badge {
+  color: inherit;
+  text-decoration: none;
+}
+a.care-badge small {
+  color: var(--green);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a.care-badge:hover {
+  border-color: var(--green);
+}
+a.care-badge:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+}
+
+/* En la portada móvil el chat flotante quedaba sobre el teléfono de urgencias;
+   se sube hasta la foto, donde no tapa ningún texto. */
+@media (max-width: 600px) {
+  body:has(.balto-hero):has(.mobile-action-bar) .balto-chat {
+    bottom: 160px;
+  }
+}
+
+/* Servicios en celular: nueve tarjetas en una columna sumaban más de 1.300 px.
+   En dos columnas con ícono y nombre se recorren de un vistazo; el detalle
+   sigue a un toque. Internamiento 24 horas, el servicio diferencial, conserva
+   el ancho completo y su descripción. */
+@media (max-width: 600px) {
+  .services-section .services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .services-section .services-grid > .service-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 0;
+    padding: 16px 14px;
+  }
+  .services-section .service-card .service-icon {
+    margin: 0;
+  }
+  .services-section .service-card h3 {
+    margin: 0;
+    padding-right: 18px;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+  .services-section .service-card p {
+    display: none;
+  }
+  /* Primero y a todo el ancho: destaca y deja las otras ocho en pares exactos. */
+  .services-section .services-grid > .service-card-featured {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+  .services-section .service-card-featured p {
+    display: block;
+    margin: 0;
+  }
+  .services-section .service-more {
+    top: 14px;
+    right: 12px;
+  }
+}
+
+/* Mapa: la etiqueta lleva a Google Maps, así hay salida aunque el mapa
+   incrustado no cargue por mala señal. */
+a.map-caption {
+  z-index: 1;
+  color: var(--green);
+  font-weight: 700;
+  text-decoration: none;
+}
+a.map-caption .map-caption-action {
+  margin-left: 4px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a.map-caption:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+}
+.map-wrap::before {
+  content: "Cargando mapa…";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  font-size: 15px;
+}
+.map-wrap iframe {
+  position: relative;
+}
+
+/* "Para tu perro / gato" en celular: la flecha pasa a la esquina de la foto
+   para que el título tenga todo el ancho y no se parta en tres líneas. */
+@media (max-width: 699px) {
+  .retail-pets > a {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .retail-pets > a > .icon {
+    /* Sin área de grilla: si no, la posición absoluta se mide desde su fila. */
+    grid-area: auto;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    padding: 7px;
+    border-radius: 50%;
+    background: var(--cream);
+    color: var(--green);
+  }
+  .retail-pets > a > span {
+    font-size: 19px;
+    line-height: 1.2;
+  }
+}
+
+/* Sin cuadrícula decorativa detrás de la foto de portada: competía con la
+   foto y ensuciaba el borde del aviso de urgencias. */
+.balto-hero .hero-visual {
+  background-image: none;
+}
+
+/* Foto real del gatito en la tienda: sus orejas están cerca del borde superior. */
+.retail-pets .retail-pet-photo[src*="para-gato-balto"] {
+  object-position: 55% 0;
+}

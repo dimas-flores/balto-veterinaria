@@ -41,6 +41,8 @@ drush php:script /opt/balto/scripts/seed-clinic-gallery.php
 drush php:script /opt/balto/scripts/update-confirmed-schedule.php
 drush php:script /opt/balto/scripts/update-map-location.php
 drush php:script /opt/balto/scripts/update-owner-business.php
+drush php:script /opt/balto/scripts/update-service-icons.php
+drush php:script /opt/balto/scripts/update-social-services.php
 drush php:script /opt/balto/scripts/update-manual-payments.php
 drush php:script /opt/balto/scripts/update-product-photos.php
 drush --yes en balto_payments balto_automation
