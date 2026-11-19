@@ -34,7 +34,7 @@
       {% for name in ['q', 'category', 'species'] %}{% if filters[name] %}<input type="hidden" name="{{ name }}" value="{{ filters[name] }}" />{% endif %}{% endfor %}
       <div class="catalog-filter-field"><label for="catalog-sort">Ordenar por</label><select id="catalog-sort" name="sort">{% for id, label in sort_options %}<option value="{{ id }}"{% if filters.sort == id %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
       <label class="catalog-filter-check" for="catalog-available"><input id="catalog-available" type="checkbox" name="disponibles" value="1"{% if filters.disponibles %} checked{% endif %} /> Solo productos disponibles</label>
-      <button class="button" type="submit">Aplicar <span aria-hidden="true">↗</span></button>
+      <button class="button" type="submit">Aplicar</button>
       {% if filters|filter(value => value is not empty) %}<a class="clear-filters" href="{{ path('vet_api.catalog') }}">Limpiar filtros</a>{% endif %}
     </form></details>
 

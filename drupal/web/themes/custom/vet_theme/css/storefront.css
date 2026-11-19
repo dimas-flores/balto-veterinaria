@@ -296,3 +296,21 @@ p{text-wrap:pretty}
     width: 100%;
   }
 }
+
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.balto-legal-page {
+  max-width: 68ch;
+}
+
+.balto-legal-notice {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-inline-start: 3px solid var(--mustard);
+  background: var(--soft);
+  color: var(--green);
+}

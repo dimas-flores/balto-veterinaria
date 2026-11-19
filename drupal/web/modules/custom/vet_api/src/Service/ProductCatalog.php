@@ -118,6 +118,13 @@ final class ProductCatalog {
     $photoUri = $photo?->entity?->getFileUri();
     $imageUrl = $photoUri ? $this->fileUrlGenerator->generateString($photoUri) : '';
     $cardStyle = $photoUri ? ImageStyle::load('balto_photo_card') : NULL;
+    $photoWidth = (int) ($photo?->width ?? 0);
+    $photoHeight = (int) ($photo?->height ?? 0);
+    $cardImageUrl = $cardStyle ? $cardStyle->buildUrl($photoUri) : $imageUrl;
+    $cardImageSrcset = '';
+    if ($cardStyle && $photoWidth > 640 && ($largeStyle = ImageStyle::load('balto_photo_card_large'))) {
+      $cardImageSrcset = $cardImageUrl . ' 640w, ' . $largeStyle->buildUrl($photoUri) . ' ' . min(960, $photoWidth) . 'w';
+    }
     $category = $product->get('field_category')->entity;
     $species = [];
     foreach ($product->get('field_species')->getValue() as $item) {
@@ -129,7 +136,10 @@ final class ProductCatalog {
       'sku' => $variation?->getSku() ?? '',
       'description' => trim(Html::decodeEntities(strip_tags($product->get('field_description')->value ?? ''))),
       'image_url' => $imageUrl,
-      'card_image_url' => $cardStyle ? $cardStyle->buildUrl($photoUri) : $imageUrl,
+      'card_image_url' => $cardImageUrl,
+      'card_image_srcset' => $cardImageSrcset,
+      'image_width' => $photoWidth ?: 720,
+      'image_height' => $photoHeight ?: 660,
       'image_alt' => $photo?->alt ?? $product->label(),
       'price' => 'S/ ' . number_format((float) ($price?->getNumber() ?? '0'), 2, '.', ','),
       'price_number' => $price?->getNumber() ?? '0.00', 'currency' => $price?->getCurrencyCode() ?? 'PEN',

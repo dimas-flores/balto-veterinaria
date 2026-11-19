@@ -22,53 +22,19 @@
   }
 }
 
-/* Identidad de las redes de BALTO: huella amarilla, resaltado y confianza. */
 .balto-hero .hero-visual {
   position: relative;
   isolation: isolate;
 }
-.balto-hero .hero-paw {
-  position: absolute;
-  z-index: -1;
-  top: -10%;
-  right: -12%;
-  width: 62%;
-  fill: var(--mustard);
-  transform: rotate(16deg);
-  pointer-events: none;
-}
-.balto-hero h1 em {
-  padding-inline: .04em;
-  background-image: linear-gradient(transparent 62%, color-mix(in srgb, var(--mustard) 80%, transparent) 62%, color-mix(in srgb, var(--mustard) 80%, transparent) 90%, transparent 90%);
-}
 .balto-hero .hero-trust {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 22px;
-  margin: 28px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.balto-hero .hero-trust li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   color: var(--green);
+  max-width: 46ch;
+  margin: 26px 0 0;
   font-size: 15px;
+  line-height: 1.6;
   font-weight: 700;
 }
-.balto-hero .hero-trust li::before {
-  content: "✓";
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--mustard);
-  color: var(--green);
-  font-size: 13px;
-}
-/* Historia real flotando sobre la foto: prueba de pacientes atendidos. */
+/* Historia de un paciente sobre la foto: prueba de que atienden de verdad. */
 .balto-hero .hero-story {
   position: absolute;
   z-index: 2;
@@ -95,11 +61,8 @@
 }
 .balto-hero .hero-story small {
   display: block;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: color-mix(in srgb, var(--green) 70%, var(--cream));
+  font-size: 13px;
+  color: color-mix(in srgb, var(--green) 75%, var(--cream));
 }
 .balto-hero .hero-story strong {
   display: block;
@@ -118,11 +81,6 @@
   .balto-hero .hero-trust {
     display: none;
   }
-  .balto-hero .hero-paw {
-    top: -6%;
-    right: -6%;
-    width: 46%;
-  }
   .balto-hero .hero-story {
     bottom: 92px;
     left: 10px;
@@ -134,7 +92,7 @@
     height: 36px;
   }
   .balto-hero .hero-story small {
-    font-size: 11px;
+    font-size: 12px;
   }
   .balto-hero .hero-story strong {
     font-size: 13px;
@@ -207,10 +165,6 @@ a.care-badge:focus-visible {
     display: block;
     margin: 0;
   }
-  .services-section .service-more {
-    top: 14px;
-    right: 12px;
-  }
 }
 
 /* Mapa: la etiqueta lleva a Google Maps, así hay salida aunque el mapa
@@ -243,24 +197,11 @@ a.map-caption:focus-visible {
   position: relative;
 }
 
-/* "Para tu perro / gato" en celular: la flecha pasa a la esquina de la foto
-   para que el título tenga todo el ancho y no se parta en tres líneas. */
+/* "Para tu perro / gato" en celular: el título usa todo el ancho y no se parte
+   en tres líneas. */
 @media (max-width: 699px) {
   .retail-pets > a {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .retail-pets > a > .icon {
-    /* Sin área de grilla: si no, la posición absoluta se mide desde su fila. */
-    grid-area: auto;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 32px;
-    height: 32px;
-    padding: 7px;
-    border-radius: 50%;
-    background: var(--cream);
-    color: var(--green);
   }
   .retail-pets > a > span {
     font-size: 19px;
@@ -277,4 +218,165 @@ a.map-caption:focus-visible {
 /* Foto real del gatito en la tienda: sus orejas están cerca del borde superior. */
 .retail-pets .retail-pet-photo[src*="para-gato-balto"] {
   object-position: 55% 0;
+}
+
+/* Íconos de servicio sin el cuadrito teñido de fondo (catálogo K6): el ícono
+   va solo, en el verde del logo, y en la tarjeta destacada en amarillo sol. */
+.services-section .service-card .service-icon {
+  width: auto;
+  height: auto;
+  background: none;
+  border-radius: 0;
+  justify-content: start;
+}
+.services-section .service-card .service-icon .icon {
+  width: 30px;
+  height: 30px;
+}
+.services-section .service-card-featured .service-icon {
+  color: var(--mustard);
+}
+
+/* Nada salta al pasar el mouse (catálogo M8): lo que se puede abrir se
+   subraya, que es lo que de verdad indica un enlace. */
+.button:hover,
+.service-card:hover,
+.retail-pets > a:hover,
+.catalog-trial .button:hover,
+.catalog-results .product-card:hover {
+  transform: none !important;
+}
+.service-card:hover h3,
+.retail-pets > a:hover > span,
+.catalog-results .product-card:hover h3 a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Paleta fija de BALTO: verde y crema. Las dos tarjetas de mascota usan el
+   mismo crema cálido de las secciones, sin el amarillo pálido. */
+.retail-pets > a:nth-child(2) {
+  background: var(--soft);
+}
+
+/* Así trabajamos: fotos reales del equipo, del mismo tamaño y sin adornos. */
+.clinic-work {
+  background: var(--soft);
+}
+.clinic-work-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+.clinic-work-card {
+  margin: 0;
+}
+.clinic-work-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 14px;
+}
+.clinic-work-card figcaption {
+  padding-top: 12px;
+  color: var(--green);
+}
+.clinic-work-card strong {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+.clinic-work-card span {
+  display: block;
+  font-size: 15px;
+  line-height: 1.55;
+}
+@media (max-width: 900px) {
+  .clinic-work-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+  }
+}
+@media (max-width: 600px) {
+  .clinic-work-card strong {
+    font-size: 15px;
+  }
+  .clinic-work-card span {
+    font-size: 14px;
+  }
+}
+
+/* Espaciado único de la web. Antes convivían 52, 55, 64, 76 y 95 px según la
+   sección, y entre dos secciones quedaban hasta 200 px vacíos. */
+:root {
+  --space-section: 40px;
+  --space-heading: 20px;
+}
+@media (min-width: 601px) {
+  :root { --space-section: 52px; --space-heading: 24px; }
+}
+@media (min-width: 1000px) {
+  :root { --space-section: 64px; --space-heading: 28px; }
+}
+.section:not(.shop-intro),
+.services-section,
+.about-section,
+.stories-section,
+.location-section,
+.retail-home,
+.clinic-work,
+.contact-section {
+  padding-block: var(--space-section);
+}
+.section-heading,
+.retail-heading {
+  margin-bottom: var(--space-heading);
+}
+.section-heading h2 {
+  margin-top: 0;
+}
+/* Sin el enlace "Conoce el servicio", la altura mínima dejaba la tarjeta vacía abajo. */
+.service-card {
+  min-height: 0 !important;
+}
+/* Así trabajamos: texto bajo el título, no en el extremo opuesto. */
+.clinic-work .section-heading {
+  display: block;
+}
+.clinic-work .section-heading > p {
+  max-width: none;
+  margin: 8px 0 0;
+}
+/* Mismo aire arriba y abajo dentro de la tarjeta de servicio. */
+.service-card p {
+  margin-bottom: 0 !important;
+}
+
+/* Carrito vacío: un bloque con salida a la tienda en lugar de una línea suelta. */
+.cart-empty-page {
+  max-width: 560px;
+  margin: var(--space-section) auto;
+  padding: 40px 32px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius);
+  background: var(--soft);
+  text-align: center;
+  color: var(--green);
+}
+.cart-empty-page h2 {
+  margin: 0 0 10px;
+  font-size: clamp(26px, 3vw, 34px);
+}
+.cart-empty-page p {
+  margin: 0 0 24px;
+  font-size: 16px;
+}
+.cart-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px 24px;
 }

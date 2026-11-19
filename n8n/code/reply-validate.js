@@ -12,7 +12,7 @@ try {
   if (numbers(reply).some(n => !known.has(n))) throw new Error('Cifra no respaldada');
   // El aviso académico se conserva aunque el modelo lo omita.
   let text = reply.trim();
-  if (base.body.reply.includes('Productos, precios y existencias de ejemplo') && !/ejemplo/i.test(text)) text += '\nProductos, precios y existencias de ejemplo; pendientes del inventario real de BALTO.';
+  if (base.body.reply.includes('Productos, precios y existencias de ejemplo') && !/ejemplo/i.test(text)) text += '\nProductos, precios y existencias de ejemplo.';
   result = {...base, body: {...base.body, reply: text, generated: true}};
 } catch { /* Respaldo sin nuevas llamadas ni pérdida de botones. */ }
 return [{json: result}];

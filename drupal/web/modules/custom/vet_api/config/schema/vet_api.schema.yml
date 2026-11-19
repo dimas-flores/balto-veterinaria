@@ -67,6 +67,15 @@ vet_api.business:
     catalog_is_example:
       type: boolean
       label: 'Inventario de ejemplo'
+    privacy_policy:
+      type: text
+      label: 'Política de privacidad aprobada'
+    purchase_terms:
+      type: text
+      label: 'Condiciones de compra aprobadas'
+    complaints_book_url:
+      type: uri
+      label: 'Enlace al Libro de Reclamaciones'
     about_title:
       type: label
       label: 'Título de presentación'

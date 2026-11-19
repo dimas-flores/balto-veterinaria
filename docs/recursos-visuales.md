@@ -64,3 +64,7 @@ independiente del WhatsApp de atención 986866036. La demo conserva pago simulad
 ## Fotografía de la tienda en "Para tu gato"
 
 `images/para-gato-balto.jpg` es una foto real publicada por BALTO en su Facebook: un gatito negro con chompa sobre el mostrador de la tienda. La aportó el usuario el 19 de noviembre de 2026 junto con otras publicaciones de la veterinaria. Se recortó a 900 × 700 px sin retoques. Reemplaza a la foto de banco anterior (`para-gato.jpg`, que se conserva en el repositorio).
+
+## Fotos de "Así trabajamos"
+
+`images/clinica-cirugia.jpg`, `clinica-monitoreo.jpg`, `clinica-ecografia.jpg` y `clinica-rayosx.jpg` son fotos reales del equipo de BALTO. Se recortaron de sus publicaciones de Facebook (campaña de esterilización, "Esterilizar" y "Cirugía general"), que aportó el usuario el 19 de noviembre de 2026. Solo se tomó el centro de cada foto, sin los aros, textos ni promociones del afiche. Como vienen de piezas para redes, su resolución es baja (de 160 a 460 px de origen); se ampliaron ×4 con [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) v0.2.5.0 (modelo `realesrgan-x4plus`, licencia BSD-3-Clause) y se guardaron a 960 × 720 px. La IA reconstruye textura (ladrillos, gorros, pantallas) y puede suavizar los rostros; el programa se usó solo en la computadora de desarrollo y no forma parte del sitio. Conviene reemplazarlas por las fotos originales cuando estén disponibles.
