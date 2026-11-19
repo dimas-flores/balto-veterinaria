@@ -7,7 +7,7 @@ if (\Drupal::state()->get('balto.owner.business.v1')) {
 }
 $config = \Drupal::configFactory()->getEditable('vet_api.business');
 $config->set('name', 'Veterinaria BALTO Juliaca')
-  ->set('consultation_schedule', 'De 9:00 a. m. a 7:00 p. m. Días de atención por confirmar.')
+  ->set('consultation_schedule', 'Lunes a sábado de 9:00 a. m. a 7:00 p. m.')
   ->set('schedule_is_example', FALSE)
   ->set('hospitalization', '24 horas')
   ->set('payment_methods', 'Tarjeta, Yape, transferencia bancaria y efectivo')

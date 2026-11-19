@@ -2,7 +2,24 @@
 {$BALTO_SITE_ADDRESS} {
 	encode zstd gzip
 
-	# Solo se publica este webhook; el editor y la API de administración de n8n
+	# Cabeceras de seguridad. No se fija CSP porque la web incrusta el mapa de
+	# Google y el pago con Culqi; una política estricta los rompería.
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+		-X-Powered-By
+	}
+
+	# Instaladores de Drupal: no tienen uso en producción.
+	@instaladores path /core/install.php /core/rebuild.php /install.php
+	handle @instaladores {
+		respond 404
+	}
+
+	# Se publican los webhooks de chat y Telegram. El editor y la API de n8n
 	# permanecen en 127.0.0.1:5678 y no se enrutan desde internet.
 	@chat {
 		path /webhook/chat
@@ -12,6 +29,14 @@
 		request_body {
 			max_size 8KB
 		}
+		reverse_proxy n8n:5678
+	}
+
+	@telegram_bot {
+		path /webhook/balto-bot-webhook/webhook
+		method POST
+	}
+	handle @telegram_bot {
 		reverse_proxy n8n:5678
 	}
 

@@ -1,6 +1,9 @@
 const context = $('Validar interpretación').first().json;
-const business = $('Leer contacto').first().json.data;
-const response = $input.first().json;
+const contactResponse = $('Leer contacto').first().json;
+const business = contactResponse.data;
+const response = $('Preparar consulta').first().json.path === '/api/vet/schedule'
+  ? contactResponse
+  : $input.first().json;
 const publicBase = 'http://localhost:8080'; // El instalador adapta esta URL.
 let status = context.status;
 let reply = '';
@@ -12,13 +15,24 @@ const cleanUrl = (url, allowedExternal = false) => {
   if (allowedExternal && /^https:\/\/wa\.me\/[0-9]+(?:\?|$)/.test(url)) return url;
   return '';
 };
-if (status === 403) reply = 'Este chat solo está habilitado desde la página de BALTO.';
-else if (status === 400) reply = 'Escribe un mensaje de entre 1 y 500 caracteres.';
-else if (!business || !response.data) {
+if (!business || !response.data) {
   status = 503;
   reply = 'No puedo consultar los datos de BALTO en este momento. Inténtalo de nuevo en unos minutos.';
 }
 else if (context.intent === 'greeting') reply = `¡Hola! Soy el asistente de ${business.name}. Puedo consultar productos, precios, disponibilidad, servicios, horarios y direcciones. ¿Qué necesitas?`;
+else if (context.intent === 'overview') {
+  const services = response.data.slice(0, 5).map(service => service.title).join(', ');
+  const clinic = services ? `Servicios veterinarios: ${services}.\n` : '';
+  reply = `${clinic}En la tienda encuentras alimentos, accesorios y productos de cuidado. También puedes separar una cita por WhatsApp.`;
+  links = [
+    { label: 'Ver servicios', url: cleanUrl('/#servicios') },
+    { label: 'Ver tienda', url: cleanUrl('/tienda') },
+  ];
+}
+else if (context.intent === 'promotions') {
+  reply = 'No tengo promociones registradas para confirmar. Puedes revisar los precios en la tienda o consultar las ofertas vigentes por WhatsApp.';
+  links = [{ label: 'Ver tienda', url: cleanUrl('/tienda') }];
+}
 else if (context.intent === 'schedule') {
   reply = `Hospitalización: ${business.hospitalization}.\nAtención en tienda/consultorio: ${business.consultation_schedule}${business.schedule_is_example && !/ejemplo/i.test(business.consultation_schedule) ? ' (horario de ejemplo, pendiente de confirmar)' : ''}\nSedes:\n${(business.addresses || []).map(a => '• ' + a).join('\n')}\n${contact}`;
 }
@@ -36,9 +50,9 @@ else if (context.intent === 'product' || context.intent === 'category') {
     links = products.slice(0, 5).map(p => ({ label: 'Ver ' + p.name, url: cleanUrl(p.url) })).filter(l => l.url);
   }
 }
-else reply = `Puedo ayudarte con productos, precios, disponibilidad, servicios y horarios. No tengo promociones registradas para confirmar. ¿Buscas algo para perro, gato u otra mascota? ${contact}`;
+else reply = `Puedo ayudarte con productos, precios, disponibilidad, servicios y horarios. ¿Quieres consultar un producto, ver los servicios o separar una cita? ${contact}`;
 if (business && status === 200) {
   const url = cleanUrl(business.appointment_url || business.whatsapp_url, true);
-  if (url) links.push({ label: 'Consultar por WhatsApp', url });
+  if (url) links.push({ label: context.intent === 'overview' ? 'Separar cita por WhatsApp' : 'Consultar por WhatsApp', url });
 }
 return [{ json: { status, body: { reply, intent: context.intent, engine: context.engine, links } } }];

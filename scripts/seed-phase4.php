@@ -32,6 +32,22 @@ foreach (['cart', 'summary'] as $mode) {
 }
 \Drupal::state()->set('balto.phase4.variation_displays.v1', TRUE);
 
+// Aplicar también a instalaciones con pedidos y cuentas existentes.
+if (!Role::load('recepcion_tienda')) {
+  Role::create([
+    'id' => 'recepcion_tienda',
+    'label' => 'Recepción de tienda',
+    'is_admin' => FALSE,
+    'permissions' => [
+      'access administration pages', 'access navigation', 'view the administration theme',
+      'access commerce administration pages', 'access commerce_product overview',
+      'update any vet_product commerce_product', 'manage vet_variation commerce_product_variation',
+      'view commerce_store', 'access commerce_order overview', 'view commerce_order',
+      'view default commerce_order',
+    ],
+  ])->save();
+}
+
 if (\Drupal::state()->get('balto.seed.phase4.v1')) {
   echo "El checkout y los roles ya existen; se conservan pedidos y cuentas.\n";
   return;

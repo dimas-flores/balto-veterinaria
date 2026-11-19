@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\vet_api\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
 use Drupal\vet_api\Service\BusinessData;
 use Drupal\vet_api\Service\ProductCatalog;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -32,6 +33,16 @@ final class CatalogController extends ControllerBase {
     }
     $result = $this->catalog->search($q, $category, $species);
     return [
+      '#attached' => [
+        'html_head' => [[
+          ['#tag' => 'meta', '#attributes' => ['name' => 'description', 'content' => 'Encuentra alimentos, accesorios y productos de cuidado para perros y gatos en la tienda BALTO de Juliaca.']],
+          'balto_description',
+        ], ...vet_api_open_graph('Tienda BALTO · Productos para tu mascota', 'Encuentra alimentos, accesorios y productos de cuidado para perros y gatos en la tienda BALTO de Juliaca.', 'vet_api.catalog')],
+        'html_head_link' => [[
+          ['rel' => 'canonical', 'href' => Url::fromRoute('vet_api.catalog', [], ['absolute' => TRUE])->toString()],
+          FALSE,
+        ]],
+      ],
       '#theme' => 'vet_catalog', '#business' => $this->business->getBusiness(),
       '#products' => $result['products'], '#total' => $result['total'],
       '#categories' => $categories, '#species_options' => ProductCatalog::SPECIES,

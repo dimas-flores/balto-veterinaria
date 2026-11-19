@@ -13,6 +13,8 @@ if (/\b(pago|pagos|pagar|yape|tarjeta|transferencia|efectivo)\b/.test(text)) int
 else if (/\b(precio|precios|cuesta|cuestan|vale|costo|cotizacion|cobran)\b/.test(text) && /\b(servicio|consulta|cirugia|esterilizacion|traumatologia|curacion|vacuna|vacunacion|tratamiento|internamiento|ecografia|radiografia|laboratorio|hemograma|bioquimica|microscopia|oftalmologia)\b/.test(text)) intent = 'service_prices';
 else if (/\b(horario|horarios|ubicacion|direccion|direcciones|donde|contacto|telefono|whatsapp|cita|citas|atienden|atencion|abren|cierran|hospitalizacion|24 horas)\b/.test(text)) intent = 'schedule';
 else if (/\b(servicio|servicios|rayos|ecografia|ecografias|cirugia|cirugias|laboratorio|hemograma|bioquimica|microscopia|oftalmologia|esterilizacion|traumatologicas|curaciones|vacunas|vacunacion|tratamiento|tratamientos|internamiento|medicina veterinaria)\b/.test(text)) intent = 'services';
+else if (/\b(oferta|ofertas|promocion|promociones|descuento|descuentos)\b/.test(text)) intent = 'promotions';
+else if (/^(?:(?:hola|buenas)[,\s]+)?[¿¡]?que\s+(?:nos\s+)?ofrece(?:n)?(?:\s+balto(?:\s+veterinaria)?)?[?!.\s]*$/.test(text)) intent = 'overview';
 else if (/\b(categoria|categorias)\b/.test(text)) intent = 'categories';
 else if (/\b(alimento|alimentos|accesorio|accesorios|higiene|juguete|juguetes|salud|medicamento|medicamentos)\b/.test(text) && !/\b(precio|cuesta|cuestan|stock|disponible|disponibilidad)\b/.test(text)) intent = 'category';
 else if (/\b(precio|precios|cuesta|cuestan|vale|valen|stock|disponible|disponibles|disponibilidad|producto|productos|tienen|venden|busco|quiero|chow|whiskas|purina|pelota|collar|correa|shampoo|heno|arena|rascador|comedero|cepillo|suplemento|bal-)\b/.test(text)) intent = 'product';
