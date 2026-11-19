@@ -429,7 +429,7 @@
         "messageType": "message",
         "chatId": "__TELEGRAM_CHAT_ID__",
         "messageId": "={{ String($('Mensaje de Telegram').first().json.callback_query.message.message_id) }}",
-        "text": "={{ ($('Mensaje de Telegram').first().json.callback_query.message.text ?? '').split('\\n\\n⏳ Pendiente de pago')[0] + '\\n\\n✅ Pago confirmado' }}",
+        "text": "={{ ($('Mensaje de Telegram').first().json.callback_query.message.text ?? '').replace(/^Pago: Yape[^\\n]*$/m, 'Medio: Yape').split('\\n\\n⏳ Pendiente de pago')[0] + '\\n\\n✅ Pago confirmado' }}",
         "replyMarkup": "none",
         "additionalFields": {
           "appendAttribution": false
