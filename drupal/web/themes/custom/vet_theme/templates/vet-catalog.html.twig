@@ -10,8 +10,16 @@
       {% if filters.species %}<input type="hidden" name="species" value="{{ filters.species }}" />{% endif %}
       <button type="submit" class="button">Buscar {% include '@vet_theme/templates/icon.html.twig' with {icon: 'search'} only %}</button></div>
     </form>
+    <nav class="catalog-pet-shortcuts" aria-label="Comprar por mascota">
+      {% set search_query = filters.q ? {q: filters.q} : {} %}
+      {% set category_query = filters.category ? {category: filters.category} : {} %}
+      {% set shortcut_query = search_query|merge(category_query) %}
+      <a href="{{ path('vet_api.catalog', {}, {query: shortcut_query}) }}"{% if not filters.species %} aria-current="true"{% endif %}>Todas</a>
+      {% for id, label in {perro: 'Perros', gato: 'Gatos'} %}
+        <a href="{{ path('vet_api.catalog', {}, {query: shortcut_query|merge({species: id})}) }}"{% if filters.species == id %} aria-current="true"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
   </div>
-  <div class="catalog-cover" aria-hidden="true"></div>
 </section>
 <nav class="catalog-categories" aria-label="Explorar categorías"><a href="{{ path('vet_api.catalog') }}"{% if not filters.category %} aria-current="page"{% endif %}>Todo el catálogo</a>{% for id, label in categories %}<a href="{{ path('vet_api.catalog', {}, {'query': {'category': id}}) }}"{% if filters.category == id %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
 {% if business.catalog_is_example %}<div class="catalog-demo-notice"><span class="demo-indicator"></span><p><strong>Catálogo de demostración.</strong> Productos, precios y existencias de ejemplo. Las fotos son referenciales y no muestran el producto exacto.</p></div>{% endif %}

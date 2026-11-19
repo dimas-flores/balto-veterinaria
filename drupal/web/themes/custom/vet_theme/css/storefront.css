@@ -240,3 +240,36 @@ p{text-wrap:pretty}
 .balto-hero h1 em{color:var(--green)}
 .footer-bottom{color:var(--green)}
 .address-number{color:var(--green)}
+
+.balto-hero .hero-visual {
+  --grid-line: color-mix(in srgb, var(--green) 15%, transparent);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: center;
+  padding: 12px;
+  border-radius: 24px;
+}
+
+@supports (backdrop-filter: blur(12px)) {
+  .cart-drawer-panel {
+    background: color-mix(in srgb, var(--cream) 94%, transparent);
+    backdrop-filter: blur(12px);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .retail-pets > a:hover {
+    box-shadow: var(--surface-shadow);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .retail-pets > a {
+    transition: transform 180ms ease-out, box-shadow 180ms ease-out;
+  }
+  .retail-pets > a:hover {
+    transform: translateY(-3px);
+  }
+}
