@@ -150,7 +150,7 @@ p{text-wrap:pretty}
 .product-detail .product-breadcrumb{font-size:13px;gap:12px;line-height:1.6}
 .product-detail .product-detail-image{background:var(--cream);border:0;border-radius:12px}
 .product-detail .product-detail-image>span{font-size:12px;padding-block:12px}
-.interior-page .product-detail h1{font-size:clamp(30px,3.2vw,46px);letter-spacing:-.025em;line-height:1.2}
+.interior-page .product-detail h1{font-size:var(--section-title-size);letter-spacing:-.025em;line-height:1.2}
 .product-detail .product-sku{font-size:13px;line-height:1.7}
 .product-detail .product-detail-price{border-bottom:0;margin-bottom:12px}
 .product-detail-price>strong{font-size:36px;font-variant-numeric:tabular-nums;letter-spacing:-.025em}
@@ -271,5 +271,28 @@ p{text-wrap:pretty}
   }
   .retail-pets > a:hover {
     transform: translateY(-3px);
+  }
+}
+
+:root {
+  --section-title-size: clamp(28px, 21px + 1.6vw, 46px);
+}
+
+.services-section .section-heading h2 {
+  font-size: var(--section-title-size);
+}
+
+.product-detail .product-cart-form {
+  margin-block: 16px 20px;
+  border: 1px solid var(--surface-border);
+}
+
+.product-detail .product-cart-form input[type=submit] {
+  min-height: 44px;
+}
+
+@media (max-width: 600px) {
+  .product-detail .product-cart-form input[type=submit] {
+    width: 100%;
   }
 }
