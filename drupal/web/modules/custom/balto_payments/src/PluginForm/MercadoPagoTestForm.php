@@ -18,11 +18,6 @@ final class MercadoPagoTestForm extends PaymentOffsiteForm {
     if (!$total || $total->getCurrencyCode() !== 'PEN') {
       throw new PaymentGatewayException('El pago de prueba requiere un total en soles.');
     }
-    $reference = $order->getData('balto_mp_test_reference');
-    if (!$reference) {
-      $reference = bin2hex(random_bytes(24));
-      $order->setData('balto_mp_test_reference', $reference)->save();
-    }
     $preference = MercadoPagoTest::api('POST', '/checkout/preferences', [
       'items' => [[
         'title' => 'BALTO · Pedido de prueba',
@@ -30,7 +25,7 @@ final class MercadoPagoTestForm extends PaymentOffsiteForm {
         'currency_id' => 'PEN',
         'unit_price' => (float) $total->getNumber(),
       ]],
-      'external_reference' => $reference,
+      'external_reference' => MercadoPagoTest::reference($order),
       'back_urls' => [
         'success' => $form['#return_url'],
         'failure' => $form['#cancel_url'],

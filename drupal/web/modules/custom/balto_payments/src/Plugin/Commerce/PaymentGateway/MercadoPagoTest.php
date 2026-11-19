@@ -10,6 +10,7 @@ use Drupal\commerce_payment\Attribute\CommercePaymentGateway;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\OffsitePaymentGatewayBase;
 use Drupal\commerce_price\Price;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -49,6 +50,10 @@ final class MercadoPagoTest extends OffsitePaymentGatewayBase {
     throw new PaymentGatewayException('No se pudo verificar la operación con Mercado Pago.');
   }
 
+  public static function reference(OrderInterface $order): string {
+    return hash_hmac('sha256', 'balto-mp-test:' . $order->uuid(), Settings::getHashSalt());
+  }
+
   public function onReturn(OrderInterface $order, Request $request) {
     $id = (string) $request->query->get('payment_id', '');
     if (!preg_match('/^[1-9][0-9]{0,19}$/D', $id)) {
@@ -57,8 +62,8 @@ final class MercadoPagoTest extends OffsitePaymentGatewayBase {
     $remote = self::api('GET', '/v1/payments/' . $id);
     $total = $order->getTotalPrice();
     $amount = $remote['transaction_amount'] ?? NULL;
-    $reference = $order->getData('balto_mp_test_reference');
-    if (!$total || !$reference || ($remote['external_reference'] ?? NULL) !== $reference
+    $reference = self::reference($order);
+    if (!$total || !in_array($remote['external_reference'] ?? NULL, array_filter([$reference, $order->getData('balto_mp_test_reference')]), TRUE)
         || ($remote['live_mode'] ?? NULL) !== FALSE || ($remote['status'] ?? NULL) !== 'approved'
         || (string) ($remote['id'] ?? '') !== $id || ($remote['currency_id'] ?? NULL) !== $total->getCurrencyCode()
         || !is_numeric($amount) || !$total->equals(new Price((string) $amount, $total->getCurrencyCode()))) {
