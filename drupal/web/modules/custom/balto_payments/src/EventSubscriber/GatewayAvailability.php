@@ -20,6 +20,9 @@ final class GatewayAvailability implements EventSubscriberInterface {
   public function filter(FilterPaymentGatewaysEvent $event): void {
     $gateways = $event->getPaymentGateways();
     foreach ($gateways as $id => $gateway) {
+      if ($gateway->getPluginId() === 'balto_mercado_pago_test' && !getenv('BALTO_MERCADO_PAGO_TEST_TOKEN')) {
+        unset($gateways[$id]);
+      }
       if ($gateway->getPluginId() !== 'balto_culqi_orders') {
         continue;
       }

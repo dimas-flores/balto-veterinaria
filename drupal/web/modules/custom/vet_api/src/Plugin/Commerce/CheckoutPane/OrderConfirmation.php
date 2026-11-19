@@ -17,7 +17,7 @@ final class OrderConfirmation extends CheckoutPaneBase {
   public function buildPaneForm(array $pane_form, FormStateInterface $form_state, array &$complete_form) {
     $business = \Drupal::service('vet_api.business')->getBusiness();
     $gateway_id = $this->order->get('payment_gateway')->target_id;
-    $simulated = $gateway_id === 'pago_simulado';
+    $simulated = in_array($gateway_id, ['pago_simulado', 'mercado_pago_test'], TRUE);
     $cancelled = $this->order->getState()->getId() === 'canceled';
     $number = $this->order->getOrderNumber();
     $total = $this->order->getTotalPrice();
