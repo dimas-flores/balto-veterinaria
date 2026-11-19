@@ -18,6 +18,10 @@ final class MercadoPagoTestForm extends PaymentOffsiteForm {
     if (!$total || $total->getCurrencyCode() !== 'PEN') {
       throw new PaymentGatewayException('El pago de prueba requiere un total en soles.');
     }
+    $seller = MercadoPagoTest::api('GET', '/users/me');
+    if (!in_array('test_user', $seller['tags'] ?? [], TRUE) || ($seller['site_id'] ?? NULL) !== 'MPE') {
+      throw new PaymentGatewayException('Se requiere una cuenta vendedora de prueba de Perú.');
+    }
     $preference = MercadoPagoTest::api('POST', '/checkout/preferences', [
       'items' => [[
         'title' => 'BALTO · Pedido de prueba',
@@ -34,9 +38,9 @@ final class MercadoPagoTestForm extends PaymentOffsiteForm {
       'auto_return' => 'approved',
       'payment_methods' => ['excluded_payment_types' => [['id' => 'ticket'], ['id' => 'bank_transfer'], ['id' => 'atm']]],
     ]);
-    $url = (string) ($preference['sandbox_init_point'] ?? '');
+    $url = (string) ($preference['init_point'] ?? '');
     if (parse_url($url, PHP_URL_SCHEME) !== 'https'
-        || parse_url($url, PHP_URL_HOST) !== 'sandbox.mercadopago.com.pe') {
+        || parse_url($url, PHP_URL_HOST) !== 'www.mercadopago.com.pe') {
       throw new PaymentGatewayException('Mercado Pago no devolvió un enlace de pruebas válido.');
     }
     return $this->buildRedirectForm($form, $form_state, $url, []);
