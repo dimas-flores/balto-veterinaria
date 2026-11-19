@@ -18,10 +18,7 @@ final class MercadoPagoTestForm extends PaymentOffsiteForm {
     if (!$total || $total->getCurrencyCode() !== 'PEN') {
       throw new PaymentGatewayException('El pago de prueba requiere un total en soles.');
     }
-    $seller = MercadoPagoTest::api('GET', '/users/me');
-    if (!in_array('test_user', $seller['tags'] ?? [], TRUE) || ($seller['site_id'] ?? NULL) !== 'MPE') {
-      throw new PaymentGatewayException('Se requiere una cuenta vendedora de prueba de Perú.');
-    }
+    MercadoPagoTest::testSellerId();
     $preference = MercadoPagoTest::api('POST', '/checkout/preferences', [
       'items' => [[
         'title' => 'BALTO · Pedido de prueba',

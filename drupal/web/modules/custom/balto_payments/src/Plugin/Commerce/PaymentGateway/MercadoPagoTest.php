@@ -50,6 +50,14 @@ final class MercadoPagoTest extends OffsitePaymentGatewayBase {
     throw new PaymentGatewayException('No se pudo verificar la operación con Mercado Pago.');
   }
 
+  public static function testSellerId(): string {
+    $seller = self::api('GET', '/users/me');
+    if (!in_array('test_user', $seller['tags'] ?? [], TRUE) || ($seller['site_id'] ?? NULL) !== 'MPE' || empty($seller['id'])) {
+      throw new PaymentGatewayException('Se requiere una cuenta vendedora de prueba de Perú.');
+    }
+    return (string) $seller['id'];
+  }
+
   public static function reference(OrderInterface $order): string {
     return hash_hmac('sha256', 'balto-mp-test:' . $order->uuid(), Settings::getHashSalt());
   }
@@ -59,12 +67,18 @@ final class MercadoPagoTest extends OffsitePaymentGatewayBase {
     if (!preg_match('/^[1-9][0-9]{0,19}$/D', $id)) {
       throw new PaymentGatewayException('Mercado Pago todavía no confirmó el pago.');
     }
+    $buyer_id = (string) getenv('BALTO_MERCADO_PAGO_TEST_BUYER_ID');
+    if (!preg_match('/^[1-9][0-9]*$/D', $buyer_id)) {
+      throw new PaymentGatewayException('Falta configurar la cuenta compradora de prueba.');
+    }
+    $seller_id = self::testSellerId();
     $remote = self::api('GET', '/v1/payments/' . $id);
     $total = $order->getTotalPrice();
     $amount = $remote['transaction_amount'] ?? NULL;
     $reference = self::reference($order);
     if (!$total || !in_array($remote['external_reference'] ?? NULL, array_filter([$reference, $order->getData('balto_mp_test_reference')]), TRUE)
-        || ($remote['live_mode'] ?? NULL) !== FALSE || ($remote['status'] ?? NULL) !== 'approved'
+        || (string) ($remote['collector_id'] ?? '') !== $seller_id
+        || (string) ($remote['payer']['id'] ?? '') !== $buyer_id || ($remote['status'] ?? NULL) !== 'approved'
         || (string) ($remote['id'] ?? '') !== $id || ($remote['currency_id'] ?? NULL) !== $total->getCurrencyCode()
         || !is_numeric($amount) || !$total->equals(new Price((string) $amount, $total->getCurrencyCode()))) {
       throw new PaymentGatewayException('El pago de prueba no se pudo confirmar para este pedido.');
