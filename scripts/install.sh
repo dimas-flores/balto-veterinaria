@@ -41,8 +41,11 @@ drush php:script /opt/balto/scripts/seed-clinic-gallery.php
 drush php:script /opt/balto/scripts/update-confirmed-schedule.php
 drush php:script /opt/balto/scripts/update-map-location.php
 drush php:script /opt/balto/scripts/update-owner-business.php
+drush php:script /opt/balto/scripts/update-service-icons.php
+drush php:script /opt/balto/scripts/update-social-services.php
 drush php:script /opt/balto/scripts/update-manual-payments.php
 drush php:script /opt/balto/scripts/update-product-photos.php
+drush php:script /opt/balto/scripts/update-product-descriptions.php
 drush --yes en balto_payments balto_automation
 drush php:script /opt/balto/scripts/prepare-automatic-payments.php
 if [[ "$(drush state:get balto.translations.v1 --format=string 2>/dev/null || true)" != 1 ]]; then

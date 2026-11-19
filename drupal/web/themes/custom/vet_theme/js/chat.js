@@ -23,7 +23,8 @@
         const safeLink = (value) => {
           try {
             const url = new URL(value, window.location.origin);
-            if (url.origin === window.location.origin && /^\/product\/\d+$/.test(url.pathname)) return url;
+            // Mismo sitio: fichas de producto, la tienda y la portada (con #servicios).
+            if (url.origin === window.location.origin && /^\/(?:product\/\d+|tienda)?$/.test(url.pathname)) return url;
             if (url.protocol === 'https:' && url.hostname === 'wa.me' && /^\/[0-9]+$/.test(url.pathname)) return url;
           } catch (_) { /* URL no válida. */ }
           return null;

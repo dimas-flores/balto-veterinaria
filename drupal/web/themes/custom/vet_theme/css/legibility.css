@@ -5,25 +5,27 @@
  */
 
 /* Texto de lectura: 14–15px. */
-.service-card p,.consultation-hours p,.local-payments p{font-size:15px!important;line-height:1.7!important}
+.service-card p,.consultation-hours p,.local-payments p,.story-copy p,.section-heading>p{font-size:15px!important;line-height:1.7!important}
 .about-commitment span,.about-photo span,.care-badge small,.carousel-care-visual figcaption,.carousel-footnote,
 .catalog-demo-notice p,.catalog-demo-notice strong,.stories-footer p,.retail-pets small,.local-payments small,
 .cart-stock-note,.product-detail-demo,.services-pricing-note p,.schedule-hospital span,.schedule-hospital strong,
-.consultation-hours strong,.site-footer p,.site-footer a,.site-footer p strong,.site-footer li,.site-footer h2{font-size:14px!important}
+.consultation-hours strong,.site-footer p,.site-footer a,.site-footer p strong,.site-footer li,.site-footer h2,
+.text-link,.map-caption,.address-row p,.payment-chip-text small,.payment-chip-text strong,.carousel-pause{font-size:14px!important}
 .site-footer p,.site-footer a{line-height:1.7}
 
 /* Etiquetas y datos secundarios: 13px. */
-.payment-chip-text small,.payment-chip-text strong,.product-category,.product-species,.stock-label,.catalog-filter-field label,
-.catalog-results-heading p,.text-link,.map-caption,.product-detail-image span,.product-sku,.pager__item,.pager__item a,
+.product-category,.product-species,.stock-label,.catalog-filter-field label,
+.catalog-results-heading p,.product-detail-image span,.product-sku,.pager__item,.pager__item a,
 .service-more,.product-detail-price .stock-label,.retail-example{font-size:13px!important}
 .service-more>span{font-size:18px!important}
 
 /* Botones de texto pequeño. */
-.button-yellow,.site-footer .button{font-size:14px!important}
+.contact-inner .button,.site-footer .button{font-size:14px!important}
 
 /* Etiquetas en mayúsculas o insignias: mínimo 11–12px. */
 .story-kicker,.payment-chip-badge,.product-status{font-size:11px!important}
-.utility-bar,.utility-bar a,.utility-bar span,.footer-bottom,.footer-bottom a,.footer-bottom span{font-size:12px!important}
+.utility-bar,.utility-bar a,.utility-bar span{font-size:12px!important}
+.footer-bottom,.footer-bottom a,.footer-bottom span{font-size:13px!important}
 
 /* En móvil, la flecha de servicio va sola en la esquina (ver style.css). */
 @media(max-width:599px){.service-more{font-size:0!important}.service-card p{font-size:14px!important}}

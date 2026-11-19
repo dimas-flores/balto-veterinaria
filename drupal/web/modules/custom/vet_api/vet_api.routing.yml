@@ -80,3 +80,19 @@ vet_api.cart_summary:
     _permission: 'access content'
   options:
     no_cache: TRUE
+
+vet_api.privacy:
+  path: '/privacidad'
+  defaults:
+    _controller: '\Drupal\vet_api\Controller\LegalController::privacy'
+    _title: 'Privacidad'
+  requirements:
+    _permission: 'access content'
+
+vet_api.purchase_terms:
+  path: '/condiciones-de-compra'
+  defaults:
+    _controller: '\Drupal\vet_api\Controller\LegalController::purchaseTerms'
+    _title: 'Condiciones de compra'
+  requirements:
+    _permission: 'access content'

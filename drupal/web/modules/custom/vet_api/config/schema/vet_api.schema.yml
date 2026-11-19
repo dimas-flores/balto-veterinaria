@@ -28,6 +28,15 @@ vet_api.business:
     whatsapp_url:
       type: uri
       label: 'Enlace de WhatsApp'
+    phone_secondary:
+      type: string
+      label: 'Segundo teléfono o vacío'
+    instagram_user:
+      type: string
+      label: 'Usuario de Instagram sin @ o vacío'
+    tiktok_name:
+      type: string
+      label: 'Nombre en TikTok o vacío'
     facebook_name:
       type: string
       label: 'Nombre de Facebook'
@@ -58,6 +67,15 @@ vet_api.business:
     catalog_is_example:
       type: boolean
       label: 'Inventario de ejemplo'
+    privacy_policy:
+      type: text
+      label: 'Política de privacidad aprobada'
+    purchase_terms:
+      type: text
+      label: 'Condiciones de compra aprobadas'
+    complaints_book_url:
+      type: uri
+      label: 'Enlace al Libro de Reclamaciones'
     about_title:
       type: label
       label: 'Título de presentación'

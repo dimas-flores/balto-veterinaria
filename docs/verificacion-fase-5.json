@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-12T15:04:11.241418+00:00",
+  "date": "2026-11-19T16:37:33.131048+00:00",
   "results": [
     "Respuesta sin almacenamiento en caché: products",
     "Tipo JSON: products",
@@ -67,11 +67,12 @@
     "Filtros combinados de categoría y especie",
     "Respuesta sin almacenamiento en caché: services",
     "Tipo JSON: services",
-    "Siete servicios publicados",
+    "Once servicios publicados",
+    "Servicios de las redes de BALTO publicados",
     "Respuesta sin almacenamiento en caché: schedule",
     "Tipo JSON: schedule",
     "Direcciones y contacto desde configuración",
-    "Hospitalización continua y horario de consultorio marcado de ejemplo",
+    "Hospitalización continua y horario de consultorio confirmado",
     "Respuesta sin almacenamiento en caché: products/NO-EXISTE",
     "Tipo JSON: products/NO-EXISTE",
     "Error JSON correcto: products/NO-EXISTE",

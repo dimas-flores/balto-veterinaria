@@ -5,7 +5,7 @@ services:
 
   vet_api.catalog:
     class: Drupal\vet_api\Service\ProductCatalog
-    arguments: ['@entity_type.manager', '@commerce_stock.service_manager', '@file_url_generator']
+    arguments: ['@entity_type.manager', '@commerce_stock.service_manager', '@file_url_generator', '@pager.manager']
 
   vet_api.stock_availability:
     class: Drupal\vet_api\Stock\StockAvailabilityChecker

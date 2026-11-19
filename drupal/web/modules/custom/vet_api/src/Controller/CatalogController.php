@@ -27,11 +27,14 @@ final class CatalogController extends ControllerBase {
     $q = trim((string) $request->query->get('q', ''));
     $category = (string) $request->query->get('category', '');
     $species = (string) $request->query->get('species', '');
+    $sort = (string) $request->query->get('sort', '');
+    $available = (string) $request->query->get('disponibles', '');
     $categories = $this->catalog->categories();
-    if (mb_strlen($q) > 100 || ($category !== '' && !isset($categories[$category])) || ($species !== '' && !isset(ProductCatalog::SPECIES[$species]))) {
+    if (mb_strlen($q) > 100 || ($category !== '' && !isset($categories[$category])) || ($species !== '' && !isset(ProductCatalog::SPECIES[$species]))
+      || !isset(ProductCatalog::SORTS[$sort]) || !in_array($available, ['', '1'], TRUE)) {
       throw new BadRequestHttpException('Los filtros de búsqueda no son válidos.');
     }
-    $result = $this->catalog->search($q, $category, $species);
+    $result = $this->catalog->search($q, $category, $species, $sort, $available === '1');
     return [
       '#attached' => [
         'html_head' => [[
@@ -45,8 +48,8 @@ final class CatalogController extends ControllerBase {
       ],
       '#theme' => 'vet_catalog', '#business' => $this->business->getBusiness(),
       '#products' => $result['products'], '#total' => $result['total'],
-      '#categories' => $categories, '#species_options' => ProductCatalog::SPECIES,
-      '#filters' => ['q' => $q, 'category' => $category, 'species' => $species],
+      '#categories' => $categories, '#species_options' => ProductCatalog::SPECIES, '#sort_options' => ProductCatalog::SORTS,
+      '#filters' => ['q' => $q, 'category' => $category, 'species' => $species, 'sort' => $sort, 'disponibles' => $available],
       '#pager' => ['#type' => 'pager'],
       '#cache' => ['tags' => $result['cache_tags'], 'contexts' => ['url.query_args', 'user.permissions', 'languages:language_interface']],
     ];

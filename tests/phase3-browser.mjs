@@ -33,7 +33,7 @@ try {
     check(response.status() === 200, `Catálogo HTTP 200 a ${width}px`);
     check(audit.overflow <= 1, `Catálogo sin desbordamiento a ${width}px`);
     check(audit.cards === 12 && audit.h1 === 1, `Doce productos por página y un título principal a ${width}px`);
-    check(audit.images === 0 && audit.demo.includes('ejemplo'), `Imágenes locales y aviso de demo a ${width}px`);
+    check(audit.images === 0, `Imágenes locales cargadas a ${width}px`);
     if (width === 1440) {
       await page.screenshot({ path: root + 'docs/capturas/fase-3-catalogo.png', fullPage: true });
       await page.screenshot({ path: root + 'docs/capturas/fase-3-portada-tienda.png' });
@@ -49,13 +49,23 @@ try {
   await visit('/tienda?q=BAL-SAL-002');
   check(await page.$$eval('.product-card', els => els.length === 1 && els[0].dataset.sku === 'BAL-SAL-002'), 'Búsqueda por SKU');
   await visit('/tienda');
-  const categories = await page.$$eval('#catalog-category option', els => Object.fromEntries(els.map(el => [el.textContent, el.value])));
-  check(Object.keys(categories).length === 6, 'Cinco categorías disponibles además de Todas');
-  await page.select('#catalog-category', categories.Alimentos);
-  await page.select('#catalog-species', 'gato');
+  // Categoría y mascota se eligen con las pastillas; cada enlace conserva el otro filtro.
+  const categories = await page.$$eval('.catalog-categories a', els => Object.fromEntries(els.map(el => [el.textContent.trim(), el.href])));
+  check(Object.keys(categories).length === 6, 'Cinco categorías disponibles además de Todo el catálogo');
+  await visit(new URL(categories.Alimentos).pathname + new URL(categories.Alimentos).search);
+  await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('.catalog-pet-shortcuts a:last-child')]);
+  check(await page.$$eval('.product-card', els => els.length === 2 && els.every(el => el.querySelector('.product-species').textContent.includes('Gato'))), 'Categoría y especie se combinan con las pastillas');
+  const shared = new URL(page.url()).searchParams;
+  check(shared.get('species') === 'gato' && !!shared.get('category'), 'Los filtros quedan en la URL para compartirlos');
+  // Orden y "solo disponibles" desde el formulario lateral.
+  await visit('/tienda');
+  await page.select('#catalog-sort', 'precio_asc');
+  await page.click('#catalog-available');
   await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('.catalog-filters button')]);
-  check(await page.$$eval('.product-card', els => els.length === 2 && els.every(el => el.querySelector('.product-species').textContent.includes('Gato'))), 'Categoría y especie se combinan mediante el formulario GET');
-  check(new URL(page.url()).searchParams.get('species') === 'gato', 'Los filtros quedan en la URL para compartirlos');
+  const prices = await page.$$eval('.product-price-row strong', els => els.map(el => Number(el.textContent.replace(/[^0-9.]/g, ''))));
+  check(prices.length > 0 && prices.every((v, i) => i === 0 || prices[i - 1] <= v), 'Ordenar por menor precio');
+  check(await page.$$eval('.product-card.is-sold-out', els => els.length === 0), 'Solo productos disponibles oculta los agotados');
+  check(new URL(page.url()).searchParams.get('sort') === 'precio_asc', 'El orden queda en la URL');
   await visit('/tienda?q=producto-inexistente-123');
   check(!!await page.$('.catalog-empty') && await page.$$eval('.product-card', els => els.length === 0), 'Búsqueda sin coincidencias muestra alternativas');
   await visit('/tienda?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E');

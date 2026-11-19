@@ -12,6 +12,16 @@ use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\user\Entity\Role;
 
+// Derivados web nativos de Drupal: se conserva íntegro el archivo original.
+foreach (['balto_photo_wide' => 1000, 'balto_photo_card' => 640, 'balto_photo_card_large' => 960, 'balto_brand' => 160] as $id => $width) {
+  if (!ImageStyle::load($id)) {
+    $style = ImageStyle::create(['name' => $id, 'label' => 'BALTO · ' . $width . ' px WebP']);
+    $style->addImageEffect(['id' => 'image_scale', 'weight' => 0, 'data' => ['width' => $width, 'height' => NULL, 'upscale' => FALSE]]);
+    $style->addImageEffect(['id' => 'image_convert', 'weight' => 1, 'data' => ['extension' => 'webp']]);
+    $style->save();
+  }
+}
+
 if (\Drupal::state()->get('balto.seed.clinic_gallery.v1')) {
   echo "Las fotografías de BALTO ya existen; se conservan las ediciones.\n";
   return;
@@ -31,15 +41,6 @@ foreach ($fields as [$name, $type, $label, $storage_settings, $settings]) {
   }
   if (!FieldConfig::loadByName('node', 'historia_balto', $name)) {
     FieldConfig::create(['field_name' => $name, 'entity_type' => 'node', 'bundle' => 'historia_balto', 'label' => $label, 'settings' => $settings, 'required' => $name !== 'field_clinic_order'])->save();
-  }
-}
-// Derivados web nativos de Drupal: se conserva íntegro el archivo original.
-foreach (['balto_photo_wide' => 1000, 'balto_photo_card' => 640, 'balto_brand' => 160] as $id => $width) {
-  if (!ImageStyle::load($id)) {
-    $style = ImageStyle::create(['name' => $id, 'label' => 'BALTO · ' . $width . ' px WebP']);
-    $style->addImageEffect(['id' => 'image_scale', 'weight' => 0, 'data' => ['width' => $width, 'height' => NULL, 'upscale' => FALSE]]);
-    $style->addImageEffect(['id' => 'image_convert', 'weight' => 1, 'data' => ['extension' => 'webp']]);
-    $style->save();
   }
 }
 $form = EntityFormDisplay::load('node.historia_balto.default') ?? EntityFormDisplay::create(['targetEntityType' => 'node', 'bundle' => 'historia_balto', 'mode' => 'default', 'status' => TRUE]);

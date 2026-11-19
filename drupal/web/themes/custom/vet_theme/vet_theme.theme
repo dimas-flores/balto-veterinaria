@@ -7,6 +7,8 @@
 
 /** Implements hook_preprocess_page(). */
 function vet_theme_preprocess_page(array &$variables): void {
+  $book_url = (string) \Drupal::config('vet_api.business')->get('complaints_book_url');
+  $variables['vet_complaints_book_url'] = filter_var($book_url, FILTER_VALIDATE_URL) && parse_url($book_url, PHP_URL_SCHEME) === 'https' ? $book_url : '';
   $variables['business'] = \Drupal::service('vet_api.business')->getBusiness();
   $theme_path = \Drupal::service('extension.list.theme')->getPath('vet_theme');
   $variables['vet_assets'] = base_path() . $theme_path;
@@ -36,6 +38,7 @@ function vet_theme_preprocess_page(array &$variables): void {
   $variables['payment_methods'] = _vet_theme_payment_methods($variables['business']['payment_methods'] ?? '');
   // La disponibilidad de Culqi depende de la pasarela: se invalida al cambiarla.
   $variables['#cache']['tags'][] = 'config:commerce_payment_gateway_list';
+  $variables['#cache']['tags'][] = 'config:vet_api.business';
 }
 
 /**

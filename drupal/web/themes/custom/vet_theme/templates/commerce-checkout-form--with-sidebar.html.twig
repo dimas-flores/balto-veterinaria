@@ -1,5 +1,8 @@
 <div class="layout-checkout-form balto-checkout-grid">
-  <div class="layout-region layout-region-checkout-main">{{ form|without('sidebar', 'actions') }}</div>
+  <div class="layout-region layout-region-checkout-main">{% if form.vet_customer or form.contact_information %}
+      <p class="balto-legal-notice">Usamos tus datos para gestionar tu pedido y coordinar el retiro. Consulta la <a href="{{ path('vet_api.privacy') }}" target="_blank" rel="noopener">política de privacidad (abre otra pestaña)</a>.</p>
+    {% endif %}
+    {{ form|without('sidebar', 'actions') }}</div>
   <aside class="layout-region layout-region-checkout-secondary checkout-summary" aria-label="Resumen de tu pedido"><h2>Tu pedido</h2>{{ form.sidebar }}</aside>
-  <div class="layout-region layout-region-checkout-footer">{{ form.actions }}</div>
+  <div class="layout-region layout-region-checkout-footer"><p class="balto-legal-notice"><a href="{{ path('vet_api.purchase_terms') }}" target="_blank" rel="noopener">Condiciones de compra (abre otra pestaña)</a></p>{{ form.actions }}</div>
 </div>

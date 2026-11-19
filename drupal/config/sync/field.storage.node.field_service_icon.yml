@@ -32,6 +32,24 @@ settings:
     -
       value: moon
       label: Hospitalización
+    -
+      value: bandage
+      label: Curaciones
+    -
+      value: vaccine
+      label: Vacunación
+    -
+      value: eye
+      label: Oftalmología
+    -
+      value: bone
+      label: Traumatología
+    -
+      value: grooming
+      label: Peluquería
+    -
+      value: deworming
+      label: Desparasitación
   allowed_values_function: ''
 module: options
 locked: false

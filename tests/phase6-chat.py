@@ -39,7 +39,7 @@ def php(code):
 baseline = json.loads(php('$v=\\Drupal::entityTypeManager()->getStorage("commerce_product_variation")->loadByProperties(["sku"=>"BAL-ALI-001"]);$v=reset($v);echo json_encode(\\Drupal::service("vet_api.catalog")->present($v->getProduct()));'))
 samples = [
     ('hola', 'greeting', ['BALTO', 'productos']),
-    ('¿Cuánto cuesta el Dog Chow Adulto 15 kg?', 'product', [baseline['price'], str(baseline['stock'])+' unidades', 'ejemplo']),
+    ('¿Cuánto cuesta el Dog Chow Adulto 15 kg?', 'product', [baseline['price'], str(baseline['stock'])+' unidades']),
     ('disponibilidad de BAL-ALI-004', 'product', ['agotado']),
     ('precio de producto INEXISTENTEZZZ', 'product', ['No encontré', 'WhatsApp']),
     ('categorías', 'categories', ['Alimentos', 'Accesorios', 'Juguetes']),
@@ -48,7 +48,7 @@ samples = [
     ('horarios', 'schedule', ['24 horas', '9:00', '7:00']),
     ('direcciones', 'schedule', ['220', 'Centro Comercial']),
     ('quiero separar una cita', 'schedule', ['WhatsApp', '986']),
-    ('asdfgh zxcv', 'unknown', ['No entendí', 'WhatsApp']),
+    ('asdfgh zxcv', 'unknown', ['Puedo ayudarte', 'WhatsApp']),
 ]
 for message,intent,fragments in samples:
     status,body,headers = chat(message)

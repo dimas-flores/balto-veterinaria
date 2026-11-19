@@ -32,6 +32,9 @@ final class BusinessSettingsForm extends ConfigFormBase {
     }
     $form['contact']['maps_cid'] = ['#type' => 'textfield', '#title' => $this->t('Identificador CID de la ficha de Google Maps'), '#default_value' => $config->get('maps_cid'), '#maxlength' => 22, '#description' => $this->t('Identifica el punto exacto del negocio. Déjalo vacío para buscar por dirección.')];
     $form['contact']['whatsapp'] = ['#type' => 'tel', '#title' => $this->t('WhatsApp de Perú (9 dígitos)'), '#default_value' => $config->get('whatsapp'), '#required' => TRUE, '#maxlength' => 20];
+    $form['contact']['phone_secondary'] = ['#type' => 'tel', '#title' => $this->t('Segundo teléfono (9 dígitos)'), '#default_value' => $config->get('phone_secondary'), '#maxlength' => 20, '#description' => $this->t('Opcional. Se muestra en el pie de página para llamar.')];
+    $form['contact']['instagram_user'] = ['#type' => 'textfield', '#title' => $this->t('Usuario de Instagram (sin @)'), '#default_value' => $config->get('instagram_user'), '#maxlength' => 30];
+    $form['contact']['tiktok_name'] = ['#type' => 'textfield', '#title' => $this->t('Nombre en TikTok'), '#default_value' => $config->get('tiktok_name'), '#maxlength' => 100];
     $form['contact']['email'] = ['#type' => 'email', '#title' => $this->t('Correo del negocio'), '#default_value' => $config->get('email'), '#description' => $this->t('Déjalo vacío hasta tener el correo real; no se mostrará un correo de ejemplo.')];
     $form['contact']['facebook_name'] = ['#type' => 'textfield', '#title' => $this->t('Nombre en Facebook'), '#default_value' => $config->get('facebook_name'), '#maxlength' => 150];
     $form['contact']['facebook_url'] = ['#type' => 'url', '#title' => $this->t('Enlace exacto de Facebook'), '#default_value' => $config->get('facebook_url'), '#description' => $this->t('Déjalo vacío hasta confirmar el enlace. El nombre seguirá visible.')];
@@ -43,12 +46,31 @@ final class BusinessSettingsForm extends ConfigFormBase {
     $form['payments']['payment_methods'] = ['#type' => 'textfield', '#title' => $this->t('Medios de pago en el local'), '#default_value' => $config->get('payment_methods'), '#maxlength' => 250];
     $form['payments']['yape_number'] = ['#type' => 'tel', '#title' => $this->t('Número de Yape'), '#default_value' => $config->get('yape_number'), '#maxlength' => 9, '#description' => $this->t('Este número no reemplaza al WhatsApp de atención.')];
     $form['payments']['service_pricing_note'] = ['#type' => 'textarea', '#title' => $this->t('Información sobre precios de servicios'), '#default_value' => $config->get('service_pricing_note'), '#maxlength' => 1000];
+    $form['legal'] = ['#type' => 'details', '#title' => $this->t('Información legal de la tienda')];
+    foreach (['privacy_policy' => 'Política de privacidad aprobada', 'purchase_terms' => 'Condiciones de compra aprobadas'] as $key => $label) {
+      $form['legal'][$key] = [
+        '#type' => 'textarea',
+        '#title' => $this->t($label),
+        '#default_value' => $config->get($key),
+        '#description' => $this->t('Usa el texto validado por el negocio. Si queda vacío, la página muestra información general de BALTO y se excluye de la indexación.'),
+      ];
+    }
+    $form['legal']['complaints_book_url'] = [
+      '#type' => 'url',
+      '#title' => $this->t('Enlace HTTPS del Libro de Reclamaciones'),
+      '#default_value' => $config->get('complaints_book_url'),
+      '#description' => $this->t('El enlace se muestra en el pie de página cuando se guarda la URL del libro operativo.'),
+    ];
     $form['catalog_is_example'] = ['#type' => 'checkbox', '#title' => $this->t('El inventario y los precios del catálogo son de ejemplo'), '#default_value' => $config->get('catalog_is_example')];
     return parent::buildForm($form, $form_state);
   }
 
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     parent::validateForm($form, $form_state);
+    $book = trim((string) $form_state->getValue('complaints_book_url'));
+    if ($book !== '' && parse_url($book, PHP_URL_SCHEME) !== 'https') {
+      $form_state->setErrorByName('complaints_book_url', $this->t('Usa un enlace HTTPS al Libro de Reclamaciones.'));
+    }
     $cid = trim((string) $form_state->getValue('maps_cid'));
     if ($cid !== '' && !preg_match('/^[0-9]{1,22}$/', $cid)) {
       $form_state->setErrorByName('maps_cid', $this->t('El CID solo admite números.'));
@@ -61,6 +83,14 @@ final class BusinessSettingsForm extends ConfigFormBase {
     if (!preg_match('/^9\d{8}$/', $phone)) {
       $form_state->setErrorByName('whatsapp', $this->t('Ingresa un celular peruano de nueve dígitos que comience con 9.'));
     }
+    $second = preg_replace('/\D/', '', $form_state->getValue('phone_secondary') ?? '');
+    if ($second !== '' && !preg_match('/^9\d{8}$/', $second)) {
+      $form_state->setErrorByName('phone_secondary', $this->t('Ingresa un celular peruano de nueve dígitos que comience con 9.'));
+    }
+    $instagram = ltrim(trim((string) $form_state->getValue('instagram_user')), '@');
+    if ($instagram !== '' && !preg_match('/^[A-Za-z0-9._]{1,30}$/', $instagram)) {
+      $form_state->setErrorByName('instagram_user', $this->t('El usuario de Instagram solo admite letras, números, puntos y guiones bajos.'));
+    }
     $url = trim($form_state->getValue('facebook_url') ?? '');
     if ($url !== '') {
       $host = strtolower(parse_url($url, PHP_URL_HOST) ?? '');
@@ -72,9 +102,10 @@ final class BusinessSettingsForm extends ConfigFormBase {
 
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config('vet_api.business');
-    foreach (['name', 'slogan', 'city', 'about_title', 'about_text', 'maps_cid', 'payment_methods', 'yape_number', 'service_pricing_note', 'whatsapp', 'email', 'facebook_name', 'facebook_url', 'hospitalization', 'consultation_schedule'] as $key) {
+    foreach (['name', 'slogan', 'city', 'about_title', 'about_text', 'maps_cid', 'payment_methods', 'yape_number', 'service_pricing_note', 'whatsapp', 'phone_secondary', 'tiktok_name', 'email', 'facebook_name', 'facebook_url', 'hospitalization', 'consultation_schedule', 'privacy_policy', 'purchase_terms', 'complaints_book_url'] as $key) {
       $config->set($key, trim((string) $form_state->getValue($key)));
     }
+    $config->set('instagram_user', ltrim(trim((string) $form_state->getValue('instagram_user')), '@'));
     $config->set('addresses', [trim($form_state->getValue('address_0')), trim($form_state->getValue('address_1'))]);
     $config->set('whatsapp_url', 'https://wa.me/51' . preg_replace('/\D/', '', $form_state->getValue('whatsapp')));
     $config->set('schedule_is_example', (bool) $form_state->getValue('schedule_is_example'));
